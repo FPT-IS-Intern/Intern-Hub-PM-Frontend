@@ -1,6 +1,7 @@
-import { Component, signal, computed, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { CreateProjectModalComponent } from '../create-project/create-project.component';
 
@@ -32,7 +33,7 @@ export interface NotificationAction {
   styleUrl: './project.component.scss',
 })
 export class ProjectComponent implements OnInit, OnDestroy {
-  private router = { navigate: (args: any[]) => console.log('Navigate to', args), events: new Subject<any>() };
+  private router = inject(Router);
   private destroy$ = new Subject<void>();
 
   // Mock address for UI
@@ -184,7 +185,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   viewProject(project: ProjectDisplay) {
-    this.router.navigate(['/project', project.id]);
+    this.router.navigate(['/project-view', project.id]);
   }
 
   editProject(project: ProjectDisplay) {
