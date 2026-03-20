@@ -1,0 +1,202 @@
+@if (isOpen()) {
+<div class="modal-overlay" (click)="handleClose()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>Tạo Dự Án</h2>
+      <button type="button" class="close-btn" (click)="handleClose()" [disabled]="isSubmitting()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Tên Dự Án -->
+      <div class="form-group">
+        <label>Tên Dự Án <span class="required">*</span></label>
+        <input type="text" placeholder="Dự án ABC" [class.error]="errors()['name']" [ngModel]="formData().name"
+          (ngModelChange)="patchForm('name', $event)" [disabled]="isSubmitting()" />
+        @if (errors()['name']) { <p class="error-msg">{{ errors()['name'] }}</p> }
+      </div>
+
+      <!-- Mô Tả -->
+      <div class="form-group">
+        <label>Mô Tả</label>
+        <textarea placeholder="Nhập mô tả dự án..." [class.error]="errors()['description']"
+          [ngModel]="formData().description" (ngModelChange)="patchForm('description', $event)"
+          [disabled]="isSubmitting()" maxlength="255"></textarea>
+        <div class="char-count">{{ formData().description.length }}/255</div>
+        @if (errors()['description']) { <p class="error-msg">{{ errors()['description'] }}</p> }
+      </div>
+
+      <!-- Thêm PM -->
+      <div class="form-group">
+        <label>Thêm PM <span class="required">*</span></label>
+        <select [class.error]="errors()['assigneeId']" [ngModel]="formData().assigneeId"
+          (ngModelChange)="patchForm('assigneeId', $event)" [disabled]="isSubmitting() || isLoadingUsers()">
+          <option value="">{{ isLoadingUsers() ? 'Đang tải...' : 'Chọn PM' }}</option>
+          @for (user of availableUsersForPM(); track user.id) {
+          <option [value]="user.id">{{ user.username }}</option>
+          }
+        </select>
+        @if (errors()['assigneeId']) { <p class="error-msg">{{ errors()['assigneeId'] }}</p> }
+      </div>
+
+      <!-- Ngân Sách & Điểm Thưởng -->
+      <div class="grid-row cols-2">
+        <div class="form-group">
+          <label>Điểm Ngân Sách <span class="required">*</span></label>
+          <input type="number" min="0" placeholder="1000" [class.error]="errors()['bt']" [ngModel]="formData().bt"
+            (ngModelChange)="patchForm('bt', $event ? Number($event) : null)" (keydown)="handleNumberKeydown($event)"
+            [disabled]="isSubmitting()" />
+        </div>
+        <div class="form-group">
+          <label>Điểm Thưởng <span class="required">*</span></label>
+          <input type="number" min="0" placeholder="400" [class.error]="errors()['rt']" [ngModel]="formData().rt"
+            (ngModelChange)="patchForm('rt', $event ? Number($event) : null)" (keydown)="handleNumberKeydown($event)"
+            [disabled]="isSubmitting()" />
+        </div>
+      </div>
+
+      <!-- Thành Viên Section -->
+      <div class="add-member-section">
+        <div class="grid-row cols-3">
+          <div class="form-group">
+            <label>Chọn vị trí <span class="required">*</span></label>
+            <select [ngModel]="formData().position" (ngModelChange)="patchForm('position', $event)">
+              <option value="">Vị trí</option>
+              @for (p of positions; track p) { <option [value]="p">{{ p }}</option> }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tên thành viên <span class="required">*</span></label>
+            <select [ngModel]="formData().member" (ngModelChange)="patchForm('member', $event)"
+              [disabled]="isLoadingUsers()">
+              <option value="">{{ isLoadingUsers() ? 'Đang tải...' : 'Chọn thành viên' }}</option>
+              @for (user of availableUsersForMembers(); track user.id) { <option [value]="user.id">{{ user.username }}
+              </option> }
+            </select>
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <button type="button" class="add-btn" (click)="handleAddMember()" [disabled]="isSubmitting()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Thêm
+            </button>
+          </div>
+        </div>
+
+        <div class="members-table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 10%;">STT</th>
+                <th style="width: 50%;">Họ và tên</th>
+                <th style="width: 30%;">Vị trí</th>
+                <th style="width: 10%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (teamMembers().length === 0) {
+              <tr>
+                <td colspan="4" style="text-align: center; color: #999; padding: 2rem;">Chưa có thành viên nào</td>
+              </tr>
+              } @else {
+              @for (tm of teamMembers(); track tm.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ tm.name }}</td>
+                <td>{{ tm.position }}</td>
+                <td style="text-align: center;">
+                  <button type="button" class="delete-member-btn" (click)="handleRemoveMember(tm.id)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+              }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tài liệu đính kèm -->
+      <div class="upload-section">
+        <label class="font-semibold text-sm color-444">Tải tài liệu lên</label>
+        <div class="upload-area" (click)="fileInput.click()">
+          <input #fileInput type="file" class="hidden" multiple (change)="onFileChange($event)">
+          <div class="upload-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="upload-text">
+            <span class="highlight">Tải lên</span>
+          </div>
+          <div class="upload-hint">Dung lượng tối đa 10MB (.docx, .pdf, .png, ...)</div>
+        </div>
+
+        @if (formData().files.length > 0) {
+        <div class="attachment-list">
+          @for (f of formData().files; track f.name + f.size; let idx = $index) {
+          <div class="attachment-item">
+            <div class="file-info">
+              <span class="pdf-icon">📄</span>
+              <div>
+                <div>{{ f.name }}</div>
+                <div class="file-meta">{{ (f.size / 1024).toFixed(1) }} KB • Date time</div>
+              </div>
+            </div>
+            <div class="file-actions">
+              <button type="button" (click)="removeFile(idx)" class="delete-file-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Ngày Bắt Đầu & Kết Thúc -->
+      <div class="grid-row cols-2">
+        <div class="form-group">
+          <label>Ngày Bắt Đầu <span class="required">*</span></label>
+          <input type="date" [class.error]="errors()['startDate']" [ngModel]="formData().startDate"
+            (ngModelChange)="patchForm('startDate', $event)" [disabled]="isSubmitting()" />
+        </div>
+        <div class="form-group">
+          <label>Ngày Kết Thúc <span class="required">*</span></label>
+          <input type="date" [class.error]="errors()['endDate']" [ngModel]="formData().endDate"
+            (ngModelChange)="patchForm('endDate', $event)" [disabled]="isSubmitting()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn btn-cancel" (click)="handleClose()" [disabled]="isSubmitting()">Hủy</button>
+      <button type="button" class="btn btn-create" (click)="handleSubmit()" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Đang tạo...' : 'Tạo' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

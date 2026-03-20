@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
+import { ProjectComponent } from '../../components/project/project.component';
 
 @Component({
   selector: 'app-pm-home',
   standalone: true,
+  imports: [ProjectComponent],
   template: `
-    <div style="padding: 24px; text-align: center;">
-      <h1>PM Micro Frontend</h1>
-      <p>This is an empty project with Native Federation enabled.</p>
-    </div>
+    <app-project></app-project>
   `,
   styles: []
 })

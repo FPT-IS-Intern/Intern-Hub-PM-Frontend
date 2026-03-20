@@ -1,0 +1,239 @@
+<div class="project-container">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="https://internhub-v2.bbtech.io.vn/homePage" class="breadcrumb-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 10.5L12 3L21 10.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V10.5Z"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M9 21V12H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </a>
+    <span>/</span>
+    <span>Bảng Điều Khiển</span>
+  </div>
+
+  <!-- Title -->
+  <div class="main-header">
+    <h1>Quản Lí Dự Án</h1>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    @for (stat of stats(); track stat.label) {
+    <div class="stat-card" [ngClass]="stat.color">
+      <div class="stat-header">
+        <div class="stat-icon-wrapper">
+          @if (stat.color === 'stat-total') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          } @else if (stat.color === 'stat-ongoing') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          } @else if (stat.color === 'stat-completed') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="M9 14l2 2 4-4"></path>
+          </svg>
+          } @else if (stat.color === 'stat-overdue') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          }
+        </div>
+        <div class="stat-info">
+          <p class="stat-label">{{ stat.label }}</p>
+          <p class="stat-value">{{ stat.value }}</p>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="search-input-wrapper">
+      <input type="text" placeholder="Tìm kiếm tên hoặc email" [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)">
+      <span class="search-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </span>
+    </div>
+
+    <select class="status-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+      <option value="Trạng thái">Trạng thái</option>
+      <option value="Đang thực hiện">Đang thực hiện</option>
+      <option value="Hoàn thành">Hoàn thành</option>
+      <option value="Quá hạn">Quá hạn</option>
+    </select>
+
+    <div class="date-filters">
+      <div class="date-input-group">
+        <label>Từ:</label>
+        <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
+      </div>
+      <div class="date-input-group">
+        <label>Đến:</label>
+        <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
+      </div>
+    </div>
+
+    <button class="reset-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 4v6h-6" />
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+      </svg>
+    </button>
+
+    <button class="create-btn" (click)="openCreateModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Tạo Dự Án
+    </button>
+  </div>
+
+  <!-- Project Table -->
+  <div class="table-container">
+    <table class="project-table">
+      <thead>
+        <tr>
+          <th style="width: 3rem;">STT</th>
+          <th style="width: 20%;">Dự Án</th>
+          <th style="width: 35%;">Mô tả</th>
+          <th style="width: 15%;">Trạng thái</th>
+          <th style="width: 10%;">Bắt đầu</th>
+          <th style="width: 10%;">Kết thúc</th>
+          <th style="width: 10%;">Điểm ngân sách</th>
+          <th style="width: 10%;">Điểm thưởng</th>
+          <th style="width: 10%;">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (project of projects(); track project.id; let i = $index) {
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>
+            <p class="project-name">{{ project.name }}</p>
+            <p class="member-count">Số thành viên: {{ project.memberNumber }}</p>
+          </td>
+          <td>{{ project.description }}</td>
+          <td>
+            <span class="status-badge">{{ project.status }}</span>
+          </td>
+          <td class="text-gray-500">{{ project.startDate }}</td>
+          <td class="text-gray-500">{{ project.endDate }}</td>
+          <td class="text-gray-500">{{ project.bt }}</td>
+          <td class="text-gray-500">{{ project.rt }}</td>
+          <td>
+            <div class="action-icons" style="position: relative;">
+              <button type="button" class="more-btn" (click)="toggleDropdown($event, project.id)" title="Thao tác">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="5" r="1" />
+                  <circle cx="12" cy="12" r="1" />
+                  <circle cx="12" cy="19" r="1" />
+                </svg>
+              </button>
+
+              @if (activeDropdownId() === project.id) {
+              <div class="dropdown-menu" (click)="$event.stopPropagation()">
+                <button type="button" (click)="viewProject(project); activeDropdownId.set(null)">
+                  Xem
+                </button>
+                <button type="button" (click)="editProject(project); activeDropdownId.set(null)">
+                  Sửa
+                </button>
+                <button type="button" (click)="deleteProject(project); activeDropdownId.set(null)" class="delete-opt">
+                  Xóa
+                </button>
+              </div>
+              }
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+
+    </table>
+    <!-- Pagination -->
+    <div class="pagination-footer">
+      <div class="pagination-left">
+        <p class="th-subtitle">
+          Hiển thị {{ displayRange() }}
+          <span class="info-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" class="info-icon" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+        </p>
+      </div>
+
+      <div class="pagination-right">
+        <div class="pagination-controls">
+          <button type="button" class="page-btn chevron-btn" (click)="setPage(currentPage() - 1)"
+            [disabled]="currentPage() === 0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          <div class="page-numbers">
+            @if (totalPages() <= 5) { @for (page of [].constructor(totalPages()); track $index) { <button type="button"
+              class="page-btn num-btn" [ngClass]="{ 'active': currentPage() === $index }" (click)="setPage($index)">
+              {{ $index + 1 }}
+              </button>
+              }
+              } @else {
+              <button class="page-btn num-btn" [class.active]="currentPage() === 0" (click)="setPage(0)">1</button>
+              <button class="page-btn num-btn" [class.active]="currentPage() === 1" (click)="setPage(1)">2</button>
+              <button class="page-btn num-btn" [class.active]="currentPage() === 2" (click)="setPage(2)">3</button>
+              <span class="dots">...</span>
+              <button class="page-btn num-btn" [class.active]="currentPage() === totalPages() - 1"
+                (click)="setPage(totalPages() - 1)">{{ totalPages() }}</button>
+              }
+          </div>
+
+          <button type="button" class="page-btn chevron-btn" (click)="setPage(currentPage() + 1)"
+            [disabled]="currentPage() >= totalPages() - 1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="page-select-wrapper">
+          <select class="page-select" [ngModel]="currentPage()" (ngModelChange)="setPage($event)">
+            @for (p of [].constructor(totalPages()); track $index) {
+            <option [value]="$index">{{ $index + 1 }} / {{ totalPages() }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-create-project-modal [isOpen]="createModalOpen()" (closed)="closeCreateModal()"
+  (submitted)="onProjectSubmitted($event)"></app-create-project-modal>
