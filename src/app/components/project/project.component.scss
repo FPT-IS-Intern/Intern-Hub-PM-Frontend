@@ -20,7 +20,6 @@ $status-blue-bg: #1e70e0;
 .project-container {
   min-height: 100vh;
   background-color: $bg-cream;
-  padding: 1.5rem 2rem;
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -50,10 +49,10 @@ $status-blue-bg: #1e70e0;
 }
 
 .main-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 
   h1 {
-    font-size: 2rem;
+    font-size: 24px;
     font-weight: 600;
     color: $primary-orange;
     margin: 0;
@@ -64,7 +63,6 @@ $status-blue-bg: #1e70e0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
-  margin-bottom: 2.5rem;
 
   .stat-card {
     background: linear-gradient(135deg, #ffffff 0%, #fef9f3 100%);
@@ -150,7 +148,7 @@ $status-blue-bg: #1e70e0;
         letter-spacing: 0.025em;
       }
       .stat-value {
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 700;
         color: #2d3748;
         margin: 0.25rem 0 0;
@@ -164,7 +162,7 @@ $status-blue-bg: #1e70e0;
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin: 1rem 0;
 
   .search-input-wrapper {
     background: $white;
@@ -301,7 +299,7 @@ $status-blue-bg: #1e70e0;
       color: $white;
 
       th {
-        padding: 1.25rem 1.5rem;
+        padding: 0.45rem 1rem;
         text-align: left;
         font-size: 0.75rem;
         font-weight: 700;
@@ -319,10 +317,14 @@ $status-blue-bg: #1e70e0;
         &:last-child { border-bottom: none; }
 
         td {
-          padding: 1.25rem 1.5rem;
+          padding: 0.7rem 1.5rem;
           font-size: 0.875rem;
           color: #4a5568;
           vertical-align: middle;
+
+          .text-center{
+            text-align: center;
+          }
 
           .project-name {
             font-weight: 600;
