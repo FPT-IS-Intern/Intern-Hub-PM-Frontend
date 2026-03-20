@@ -185,7 +185,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   viewProject(project: ProjectDisplay) {
-    this.router.navigate(['/project-view', project.id]);
+    this.router.navigate(['project-view', project.id]);
   }
 
   editProject(project: ProjectDisplay) {
