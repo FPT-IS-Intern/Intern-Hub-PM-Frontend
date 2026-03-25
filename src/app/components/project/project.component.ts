@@ -116,25 +116,31 @@ export class ProjectComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          console.debug('[ProjectComponent.loadProjects] Response:', response);
+          console.debug('[ProjectComponent.loadProjects] Full Response:', response);
 
           // Relaxed check: support both object status and numeric status
           const isSuccess = response.status?.code === 'success' ||
             response.status?.code === 'SUCCESS' ||
             response.status === 200 ||
-            response.status === 'success';
+            response.status === 'success' ||
+            (response.items && Array.isArray(response.items)); // Fallback if no status field
 
-          if (isSuccess && response.data) {
-            const items = response.data.items || [];
+          if (isSuccess) {
+            // Support both wrapped response.data.items and direct response.items
+            const dataContainer = response.data || response;
+            const items = dataContainer.items || [];
+
+            console.debug('[ProjectComponent.loadProjects] Extracted items:', items.length);
+
             const mappedProjects = items.map((item: any) => this.mapToDisplay(item));
             this.projects.set(mappedProjects);
 
-            // Fallback for pagination fields
-            const total = response.data.totalItems ?? response.data.totalElements ?? items.length;
+            // Fallback for pagination fields in both levels
+            const total = dataContainer.totalItems ?? dataContainer.totalElements ?? items.length;
             this.totalElements.set(total);
-            this.totalPages.set(response.data.totalPages || 1);
+            this.totalPages.set(dataContainer.totalPages || 1);
 
-            console.debug('[ProjectComponent.loadProjects] Mapped:', mappedProjects.length, 'projects. Total elements:', total);
+            console.debug('[ProjectComponent.loadProjects] Success. Total Elements:', total);
           } else {
             console.warn('[ProjectComponent.loadProjects] Response status not success or no data', response);
           }
