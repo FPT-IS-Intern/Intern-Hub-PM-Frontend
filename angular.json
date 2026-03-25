@@ -46,7 +46,7 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "baseHref": "/pm/",
+            "baseHref": "/",
             "assets": [
               {
                 "glob": "**/*",

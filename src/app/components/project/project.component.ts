@@ -49,7 +49,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   dateTo = signal('');
   currentPage = signal(0);
   pageSize = signal(10);
-  
+
   // Projects data
   projects = signal<ProjectDisplay[]>([]);
   totalElements = signal(0);
@@ -83,7 +83,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   notificationTitle = signal('');
   notificationDescription = signal('');
   notificationActions = signal<NotificationAction[]>([]);
-  
+
   displayRange = computed(() => {
     if (this.totalElements() === 0) return '0-0';
     const start = (this.currentPage() * this.pageSize()) + 1;
@@ -94,7 +94,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   stats = computed(() => {
     return [
       { label: 'TỔNG SỐ DỰ ÁN', value: this.totalElements(), icon: '📄', color: 'stat-total', type: 'static' },
-      { label: 'DỰ ÁN ĐANG THỰC HIỆN', value: 8, icon: '💻', color: 'stat-ongoing', type: 'static'},
+      { label: 'DỰ ÁN ĐANG THỰC HIỆN', value: 8, icon: '💻', color: 'stat-ongoing', type: 'static' },
       { label: 'DỰ ÁN HOÀN THÀNH', value: 10, icon: '✅', color: 'stat-completed', type: 'static' },
       { label: 'DỰ ÁN QUÁ HẠN', value: 3, icon: '📋', color: 'stat-overdue', type: 'static' }
     ];
@@ -111,21 +111,37 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   loadProjects() {
     this.isLoadingProjects.set(true);
-    
+
     this.projectService.getProjects(this.currentPage(), this.pageSize())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          if (response.status?.code === 'success' && response.data) {
-            const mappedProjects = response.data.items.map(item => this.mapToDisplay(item));
+        next: (response: any) => {
+          console.debug('[ProjectComponent.loadProjects] Response:', response);
+
+          // Relaxed check: support both object status and numeric status
+          const isSuccess = response.status?.code === 'success' ||
+            response.status?.code === 'SUCCESS' ||
+            response.status === 200 ||
+            response.status === 'success';
+
+          if (isSuccess && response.data) {
+            const items = response.data.items || [];
+            const mappedProjects = items.map((item: any) => this.mapToDisplay(item));
             this.projects.set(mappedProjects);
-            this.totalElements.set(response.data.totalItems);
-            this.totalPages.set(response.data.totalPages);
+
+            // Fallback for pagination fields
+            const total = response.data.totalItems ?? response.data.totalElements ?? items.length;
+            this.totalElements.set(total);
+            this.totalPages.set(response.data.totalPages || 1);
+
+            console.debug('[ProjectComponent.loadProjects] Mapped:', mappedProjects.length, 'projects. Total elements:', total);
+          } else {
+            console.warn('[ProjectComponent.loadProjects] Response status not success or no data', response);
           }
           this.isLoadingProjects.set(false);
         },
         error: (err) => {
-          console.error('Error loading projects:', err);
+          console.error('[ProjectComponent.loadProjects] Error loading projects:', err);
           this.isLoadingProjects.set(false);
         }
       });
