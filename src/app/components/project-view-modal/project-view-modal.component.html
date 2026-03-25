@@ -189,11 +189,18 @@
 
 
     </div>
+    }
+
+    @if (activeTab() === 'details') {
+    <div class="tab-content no-padding">
+      <app-project-details [projectId]="projectId()!"></app-project-details>
+    </div>
+    }
+
     <!-- Page Actions Footer -->
     <div class="page-footer-actions">
       <button class="btn btn-outline-orange">Gia Hạn Dự Án</button>
       <button class="btn btn-orange">Kết Thúc Dự Án</button>
     </div>
-    }
   </div>
 </div>

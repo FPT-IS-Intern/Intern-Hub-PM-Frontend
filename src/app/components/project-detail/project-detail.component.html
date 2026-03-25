@@ -1,0 +1,113 @@
+<div class="project-detail-container">
+  <div class="loading-state" *ngIf="!project">
+    <div class="spinner"></div>
+    <p>Đang tải chi tiết dự án...</p>
+  </div>
+  
+  <div class="detail-content" *ngIf="project as p">
+
+    <!-- ── Thông tin dự án ─────────────────────────────────── -->
+    <div class="info-card">
+      <div class="card-header">
+        <span class="header-icon">📋</span>
+        <h2 class="card-title">Thông tin dự án</h2>
+      </div>
+      
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="info-label">Tên dự án</span>
+          <span class="info-value name">{{ p.name }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Mã nhiệm vụ</span>
+          <span class="info-value mono">{{ p.workItemUuid }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Trạng thái</span>
+          <div class="info-value">
+            <span class="status-badge" [class]="p.status.toLowerCase()">
+              <span class="dot"></span>
+              {{ mapStatus(p.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ngày bắt đầu</span>
+          <span class="info-value">{{ formatDateTimeShort(p.startDate) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ngày kết thúc</span>
+          <span class="info-value">{{ formatDateTimeShort(p.endDate) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Mô tả</span>
+          <span class="info-value description">{{ p.description }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Điểm ngân sách</span>
+          <span class="info-value points bt">{{ p.bt | number }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Điểm thưởng</span>
+          <span class="info-value points rt">{{ p.rt | number }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Kết quả</span>
+          <span class="info-value">{{ p.result }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Link kết quả</span>
+          <a [href]="p.resultLink" class="info-value link" target="_blank">
+            {{ p.resultLink }}
+          </a>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ghi chú</span>
+          <span class="info-value">{{ p.note }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Người tạo</span>
+          <span class="info-value person">{{ p.creator }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Người thực hiện</span>
+          <span class="info-value person">{{ p.assignee }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ngày tạo</span>
+          <span class="info-value mono secondary">{{ formatDateTimeShort(p.createdAt) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Cập nhật lần cuối</span>
+          <span class="info-value mono secondary">{{ formatDateTimeShort(p.updatedAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tài liệu dự án ──────────────────────────────────── -->
+    <div class="info-card">
+      <div class="card-header">
+        <span class="header-icon">📎</span>
+        <h2 class="card-title">Tài liệu dự án</h2>
+      </div>
+      
+      <div class="empty-docs">
+        Chưa có tài liệu đính kèm
+      </div>
+    </div>
+  </div>
+</div>

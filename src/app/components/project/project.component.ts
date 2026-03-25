@@ -2,8 +2,10 @@ import { Component, signal, computed, OnInit, OnDestroy, HostListener, inject } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { CreateProjectModalComponent } from '../create-project/create-project.component';
+import { ProjectApiService } from '../../services/project.service';
+import { ProjectListItem } from '../../models/project.types';
 
 // Mock types since services are missing
 export interface ProjectDisplay {
@@ -34,6 +36,7 @@ export interface NotificationAction {
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private projectService = inject(ProjectApiService);
   private destroy$ = new Subject<void>();
 
   // Mock address for UI
@@ -49,8 +52,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   
   // Projects data
   projects = signal<ProjectDisplay[]>([]);
-  totalElements = signal(72); // Matching image
-  totalPages = signal(1);
+  totalElements = signal(0);
+  totalPages = signal(0);
   isLoadingProjects = signal(false);
 
   // Token balances
@@ -82,16 +85,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
   notificationActions = signal<NotificationAction[]>([]);
   
   displayRange = computed(() => {
+    if (this.totalElements() === 0) return '0-0';
     const start = (this.currentPage() * this.pageSize()) + 1;
     const end = Math.min((this.currentPage() + 1) * this.pageSize(), this.totalElements());
     return `${start}-${end}`;
   });
 
   stats = computed(() => {
-    // ... rest of stats
-    // Stat values matching the image
     return [
-      { label: 'TỔNG SỐ DỰ ÁN', value: 72, icon: '📄', color: 'stat-total', type: 'static' },
+      { label: 'TỔNG SỐ DỰ ÁN', value: this.totalElements(), icon: '📄', color: 'stat-total', type: 'static' },
       { label: 'DỰ ÁN ĐANG THỰC HIỆN', value: 8, icon: '💻', color: 'stat-ongoing', type: 'static'},
       { label: 'DỰ ÁN HOÀN THÀNH', value: 10, icon: '✅', color: 'stat-completed', type: 'static' },
       { label: 'DỰ ÁN QUÁ HẠN', value: 3, icon: '📋', color: 'stat-overdue', type: 'static' }
@@ -110,26 +112,61 @@ export class ProjectComponent implements OnInit, OnDestroy {
   loadProjects() {
     this.isLoadingProjects.set(true);
     
-    // Mocking project data (multiplying to fill the screen better)
-    const baseProjects: ProjectDisplay[] = [
-      { id: 1, name: 'Tên Dự Án ACB', description: 'Dự án kiểm tra UIUX của ACB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 2, name: 'Tên Dự Án HDB', description: 'Dự án kiểm tra UIUX của HDB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 3, name: 'Tên Dự Án VIB', description: 'Dự án kiểm tra UIUX của VIB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 4, name: 'Tên Dự Án MSB', description: 'Dự án kiểm tra UIUX của MSB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 5, name: 'Tên Dự Án MB', description: 'Dự án kiểm tra UIUX của MB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 6, name: 'Tên Dự Án TPB', description: 'Dự án kiểm tra UIUX của TPB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 7, name: 'Tên Dự Án VPB', description: 'Dự án kiểm tra UIUX của VPB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 8, name: 'Tên Dự Án OCB', description: 'Dự án kiểm tra UIUX của OCB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 9, name: 'Tên Dự Án VIB', description: 'Dự án kiểm tra UIUX của VIB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 },
-      { id: 10, name: 'Tên Dự Án HDB', description: 'Dự án kiểm tra UIUX của HDB', status: 'Đang thực hiện', startDate: '10/01/2026', endDate: '20/01/2026', bt: 5000, rt: 1000, memberNumber: 10 }
-    ];
+    this.projectService.getProjects(this.currentPage(), this.pageSize())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.status?.code === 'success' && response.data) {
+            const mappedProjects = response.data.items.map(item => this.mapToDisplay(item));
+            this.projects.set(mappedProjects);
+            this.totalElements.set(response.data.totalItems);
+            this.totalPages.set(response.data.totalPages);
+          }
+          this.isLoadingProjects.set(false);
+        },
+        error: (err) => {
+          console.error('Error loading projects:', err);
+          this.isLoadingProjects.set(false);
+        }
+      });
+  }
 
-    setTimeout(() => {
-      this.projects.set(baseProjects);
-      this.totalElements.set(72);
-      this.totalPages.set(8);
-      this.isLoadingProjects.set(false);
-    }, 500);
+  private mapToDisplay(item: ProjectListItem): ProjectDisplay {
+    return {
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      status: this.mapStatus(item.status),
+      startDate: this.formatDate(item.startDate),
+      endDate: this.formatDate(item.endDate),
+      bt: item.budgetToken,
+      rt: item.rewardToken,
+      memberNumber: 0 // Backend doesn't provide this yet
+    };
+  }
+
+  private mapStatus(status: string): string {
+    const statusMap: Record<string, string> = {
+      'NOT_STARTED': 'Chưa bắt đầu',
+      'IN_PROGRESS': 'Đang thực hiện',
+      'COMPLETED': 'Hoàn thành',
+      'OVERDUE': 'Quá hạn'
+    };
+    return statusMap[status] || status;
+  }
+
+  private formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return dateStr;
+    }
   }
 
   onSearch() {

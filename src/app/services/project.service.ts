@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { of, Observable } from 'rxjs';
-import { CreateProjectParams } from '../models/project.types';
+import { CreateProjectParams, ProjectListItem } from '../models/project.types';
+import { ApiResponse, PaginatedData } from '../models/common.types';
 
 export interface ProjectApiRequest {
   assigneeId: number;
@@ -17,11 +19,31 @@ export interface ProjectApiRequest {
   providedIn: 'root'
 })
 export class ProjectApiService {
-  createProject(request: ProjectApiRequest, files: File[]): Observable<{ status: number; message: string }> {
-    console.log('API Create Project Request:', request, 'Files:', files.length);
-    return of({
-      status: 200,
-      message: 'Dự án đã được tạo thành công!'
-    });
+  private http = inject(HttpClient);
+  private apiUrl = '/pm/projects';
+
+  getProjects(page: number = 0, size: number = 10): Observable<ApiResponse<PaginatedData<ProjectListItem>>> {
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('size', String(size));
+    
+    return this.http.get<ApiResponse<PaginatedData<ProjectListItem>>>(this.apiUrl, { params });
+  }
+
+  createProject(request: ProjectApiRequest, files: File[]): Observable<ApiResponse<any>> {
+    const formData = new FormData();
+    
+    // Create a Blob for the JSON part to specify application/json content type
+    const requestBlob = new Blob([JSON.stringify(request)], { type: 'application/json' });
+    formData.append('request', requestBlob);
+
+    // Append files
+    if (files && files.length > 0) {
+      files.forEach(file => {
+        formData.append('files', file, file.name);
+      });
+    }
+
+    return this.http.post<ApiResponse<any>>(this.apiUrl, formData);
   }
 }

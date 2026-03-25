@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { ProjectDetailComponent } from '../project-detail/project-detail.component';
+
 interface Task {
   id: number;
   name: string;
@@ -17,7 +19,7 @@ interface Task {
 @Component({
   selector: 'app-project-view-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProjectDetailComponent],
   templateUrl: './project-view-modal.component.html',
   styleUrl: './project-view-modal.component.scss',
 })

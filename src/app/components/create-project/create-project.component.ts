@@ -171,13 +171,13 @@ export class CreateProjectModalComponent implements OnInit {
       };
 
       this.projectApiService.createProject(apiRequest, data.files).subscribe({
-        next: (response: any) => {
-          if (response.status === 200) {
-            alert(`✅ ${response.message}`);
+        next: (response) => {
+          if (response.status.code === 'success') {
+            alert(`✅ ${response.status.message || 'Dự án đã được tạo thành công!'}`);
             this.submitted.emit(data);
             this.handleClose();
           } else {
-            alert(`❌ Lỗi: ${response.message}`);
+            alert(`❌ Lỗi: ${response.status.message || 'Không thể tạo dự án'}`);
           }
           this.isSubmitting.set(false);
         },

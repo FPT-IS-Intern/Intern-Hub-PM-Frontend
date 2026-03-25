@@ -29,3 +29,28 @@ export interface CreateProjectParams {
   endDate: string;
   userList: { id: number; role: string }[];
 }
+
+export interface ProjectListItem {
+  id: number;
+  projectUUID: string;
+  name: string;
+  description: string;
+  note: string | null;
+  status: string;
+  budgetToken: number;
+  rewardToken: number;
+  creatorId: number;
+  assigneeId: number;
+  deliverableDescription: string | null;
+  deliverableLink: string | null;
+  completionComment: string | null;
+  startDate: string;
+  endDate: string;
+  charterDocuments: {
+    id: number;
+    fileName: string;
+    fileUrl: string;
+  }[];
+  createdAt: number;
+  updatedAt: number;
+}

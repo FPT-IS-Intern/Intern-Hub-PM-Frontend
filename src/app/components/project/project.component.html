@@ -124,8 +124,6 @@
           <th style="width: 10%;">Trạng thái</th>
           <th style="width: 10%;">Bắt đầu</th>
           <th style="width: 10%;">Kết thúc</th>
-          <th style="width: 15%;" class="text-center">Điểm ngân sách</th>
-          <th style="width: 10%;">Điểm thưởng</th>
           <th style="width: 10%;">Thao tác</th>
         </tr>
       </thead>
@@ -143,8 +141,6 @@
           </td>
           <td class="text-gray-500">{{ project.startDate }}</td>
           <td class="text-gray-500">{{ project.endDate }}</td>
-          <td class="text-gray-500 text-center">{{ project.bt }}</td>
-          <td class="text-gray-500">{{ project.rt }}</td>
           <td>
             <div class="action-icons" style="position: relative;">
               <button type="button" class="more-btn" (click)="toggleDropdown($event, project.id)" title="Thao tác">
