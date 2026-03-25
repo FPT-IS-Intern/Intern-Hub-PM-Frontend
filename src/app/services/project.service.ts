@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { of, Observable } from 'rxjs';
-import { CreateProjectParams, ProjectListItem } from '../models/project.types';
+import { Observable } from 'rxjs';
+import { ProjectListItem } from '../models/project.types';
 import { ApiResponse, PaginatedData } from '../models/common.types';
+import { environment } from '../../environments/environment';
 
 export interface ProjectApiRequest {
   assigneeId: number;
@@ -20,7 +21,7 @@ export interface ProjectApiRequest {
 })
 export class ProjectApiService {
   private http = inject(HttpClient);
-  private apiUrl = '/pm/projects';
+  private apiUrl = `${environment.apiUrl}/pm/projects`;
 
   getProjects(page: number = 0, size: number = 10): Observable<ApiResponse<PaginatedData<ProjectListItem>>> {
     const params = new HttpParams()
