@@ -27,13 +27,13 @@ export class ProjectApiService {
     const params = new HttpParams()
       .set('page', String(page))
       .set('size', String(size));
-    
+
     return this.http.get<ApiResponse<PaginatedData<ProjectListItem>>>(this.apiUrl, { params });
   }
 
   createProject(request: ProjectApiRequest, files: File[]): Observable<ApiResponse<any>> {
     const formData = new FormData();
-    
+
     // Create a Blob for the JSON part to specify application/json content type
     const requestBlob = new Blob([JSON.stringify(request)], { type: 'application/json' });
     formData.append('request', requestBlob);

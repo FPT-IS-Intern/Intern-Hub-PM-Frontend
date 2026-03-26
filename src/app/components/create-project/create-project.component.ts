@@ -29,6 +29,7 @@ export class CreateProjectModalComponent implements OnInit {
   
   protected readonly users = signal<User[]>([]);
   protected readonly isLoadingUsers = signal(false);
+  protected readonly searchKeyword = signal('');
   private usersLoaded = false;
 
   protected readonly availableUsersForPM = computed(() => {
@@ -64,22 +65,30 @@ export class CreateProjectModalComponent implements OnInit {
         this.usersLoaded = true;
       }
     });
+
+    // Effect to reload users when search keyword changes
+    effect(() => {
+      const keyword = this.searchKeyword();
+      if (this.isOpen()) {
+        this.loadUsers(keyword);
+      }
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {
   }
 
-  protected loadUsers(): void {
+  protected onSearchChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchKeyword.set(target.value);
+  }
+
+  protected loadUsers(keyword: string = ''): void {
     this.isLoadingUsers.set(true);
-    console.debug('[CreateProjectModal.loadUsers] Starting to fetch users from API...');
-    this.userService.getUsers().subscribe({
+    console.debug('[CreateProjectModal.loadUsers] Starting to fetch users from API with keyword:', keyword);
+    this.userService.getUsers(keyword).subscribe({
       next: (response: any) => {
-        console.debug('[CreateProjectModal.loadUsers] Response received:', {
-          status: response.status,
-          message: response.message,
-          dataLength: response.data?.length || 0
-        });
-        if (response.status === 200 && response.data) {
+        if (response.data) {
           this.users.set(response.data);
         } else {
           this.users.set([]);
