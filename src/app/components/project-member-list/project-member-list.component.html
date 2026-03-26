@@ -1,0 +1,97 @@
+<div class="member-list-container">
+  <!-- Filters/Actions -->
+  <div class="filter-section">
+    <div class="search-input-wrapper">
+      <input type="text" placeholder="Tìm kiếm tên hoặc email" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+      <span class="search-icon" (click)="onSearch()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </span>
+    </div>
+
+    <button class="refresh-btn" (click)="onRefresh()" title="Làm mới">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 4v6h-6" />
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+      </svg>
+    </button>
+
+    <button class="add-member-btn" (click)="openAddMemberModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Thêm Thành Viên
+    </button>
+  </div>
+
+  <!-- Table Section -->
+  <div class="table-wrapper">
+    <table class="member-table">
+      <thead>
+        <tr>
+          <th width="80">STT</th>
+          <th>Tên thành viên</th>
+          <th>Vị trí</th>
+          <th class="text-center">Số task đang làm</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (isLoading()) {
+        <tr>
+          <td colspan="4" class="text-center py-8">Đang tải danh sách thành viên...</td>
+        </tr>
+        } @else {
+        @for (member of members(); track member.id; let i = $index) {
+        <tr>
+          <td>{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+          <td class="fw-bold">{{ member.username }}</td>
+          <td>{{ member.position || 'BA' }}</td>
+          <td class="text-center">1</td>
+        </tr>
+        }
+        @if (members().length === 0) {
+        <tr>
+          <td colspan="4" class="text-center py-8">Không có thành viên nào trong dự án</td>
+        </tr>
+        }
+        }
+      </tbody>
+    </table>
+
+    <!-- Table Footer / Pagination -->
+    <div class="table-footer">
+      <div class="info">Hiển thị 1-10 <span class="help-icon">ⓘ</span></div>
+      <div class="pagination">
+        <button class="arrow" [class.disabled]="currentPage() === 1" (click)="prevPage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <button class="page" [class.active]="currentPage() === 1" (click)="setPage(1)">1</button>
+        <button class="page" [class.active]="currentPage() === 2" (click)="setPage(2)">2</button>
+        <button class="page" [class.active]="currentPage() === 3" (click)="setPage(3)">3</button>
+        <span class="dots">...</span>
+        <button class="page" [class.active]="currentPage() === totalPages()"
+          (click)="setPage(totalPages())">{{totalPages()}}</button>
+
+        <button class="arrow" [class.disabled]="currentPage() === totalPages()" (click)="nextPage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+
+        <div class="page-size-selector">
+          <span>1 / 20</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

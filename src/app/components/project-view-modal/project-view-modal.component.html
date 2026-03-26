@@ -241,6 +241,12 @@
     </div>
     }
 
+    @if (activeTab() === 'members') {
+    <div class="tab-content">
+      <app-project-member-list [projectId]="projectId()!"></app-project-member-list>
+    </div>
+    }
+
     <!-- Page Actions Footer -->
     <div class="page-footer-actions">
       <button class="btn btn-outline-orange">Từ chối dự án </button>

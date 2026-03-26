@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { ProjectDetailComponent } from '../project-detail/project-detail.component';
 import { CreateProjectTeamComponent } from '../create-project-team/create-project-team.component';
+import { ProjectMemberListComponent } from '../project-member-list/project-member-list.component';
 
 interface Task {
   id: number;
@@ -21,7 +22,7 @@ interface Task {
 @Component({
   selector: 'app-project-view-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProjectDetailComponent, CreateProjectTeamComponent],
+  imports: [CommonModule, FormsModule, ProjectDetailComponent, CreateProjectTeamComponent, ProjectMemberListComponent],
   templateUrl: './project-view-modal.component.html',
   styleUrl: './project-view-modal.component.scss',
 })
@@ -42,17 +43,17 @@ export class ProjectViewModalComponent implements OnInit {
   protected readonly dateFrom = signal('');
   protected readonly dateTo = signal('');
   protected readonly activeDropdownId = signal<number | null>(null);
-  
+
   protected readonly createTeamModalOpen = signal(false);
 
   protected readonly stats = computed(() => {
     const allTasks = this.tasks();
     return [
-      { label: 'TỔNG SỐ TEAM', value: 3, icon: '📄', color: 'stat-total', type: 'static' },
-      { label: 'TASK CHƯA BẮT ĐẦU', value: allTasks.filter(t => t.status === 'Chờ duyệt').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
-      { label: 'TASK ĐANG THỰC HIỆN', value: allTasks.filter(t => t.status === 'Đang thực hiện').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
-      { label: 'TASK HOÀN THÀNH', value: allTasks.filter(t => t.status === 'Đã duyệt').length, icon: '✅', color: 'stat-completed', type: 'static' },
-      { label: 'TASK QUÁ HẠN', value: allTasks.filter(t => t.status === 'Từ chối').length, icon: '📋', color: 'stat-overdue', type: 'static' }
+      { label: 'TỔNG DỰ ÁN TEAM', value: 3, icon: '📄', color: 'stat-total', type: 'static' },
+      { label: 'DỰ ÁN TEAM CHƯA BẮT ĐẦU', value: allTasks.filter(t => t.status === 'Chờ duyệt').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
+      { label: 'DỰA ÁN TEAM ĐANG THỰC HIỆN', value: allTasks.filter(t => t.status === 'Đang thực hiện').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
+      { label: 'DỰ ÁN TEAM HOÀN THÀNH', value: allTasks.filter(t => t.status === 'Đã duyệt').length, icon: '✅', color: 'stat-completed', type: 'static' },
+      { label: 'DỰ ÁN TEAM QUÁ HẠN', value: allTasks.filter(t => t.status === 'Từ chối').length, icon: '📋', color: 'stat-overdue', type: 'static' }
     ];
   });
 
