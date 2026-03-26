@@ -154,7 +154,7 @@
               @if (activeDropdownId() === project.id) {
               <div class="dropdown-menu" (click)="$event.stopPropagation()">
                 <button type="button" (click)="viewProject(project); activeDropdownId.set(null)">
-                  Xem
+                  Chi tiết
                 </button>
                 <button type="button" (click)="editProject(project); activeDropdownId.set(null)">
                   Sửa

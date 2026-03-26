@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project-contract.service';
 import { UserService, User } from '../../services/user.service';
 import { ProjectApiService, ProjectApiRequest } from '../../services/project.service';
+import { NotificationService } from '../../services/notification.service';
 import { CreateProjectParams, ProjectFormData, TeamMember } from '../../models/project.types';
 
 type ProjectFormErrors = Partial<Record<keyof ProjectFormData, string>>;
@@ -58,6 +59,7 @@ export class CreateProjectModalComponent implements OnInit {
   private readonly projectService = inject(ProjectService);
   private readonly userService = inject(UserService);
   private readonly projectApiService = inject(ProjectApiService);
+  private readonly notificationService = inject(NotificationService);
 
   constructor() {
     effect(() => {
@@ -215,23 +217,23 @@ export class CreateProjectModalComponent implements OnInit {
       this.projectApiService.createProject(apiRequest, data.files).subscribe({
         next: (response) => {
           if (response.status.code === 'success') {
-            alert(`✅ ${response.status.message || 'Dự án đã được tạo thành công!'}`);
+            this.notificationService.showSuccess('Thành công', response.status.message || 'Dự án đã được tạo thành công!');
             this.submitted.emit(data);
             this.handleClose();
           } else {
-            alert(`❌ Lỗi: ${response.status.message || 'Không thể tạo dự án'}`);
+            this.notificationService.showError('Lỗi', response.status.message || 'Không thể tạo dự án');
           }
           this.isSubmitting.set(false);
         },
         error: (error: any) => {
           const errorMessage = error?.error?.message || error?.message || 'Vui lòng thử lại';
-          alert(`❌ Lỗi tạo dự án: ${errorMessage}`);
+          this.notificationService.showError('Lỗi tạo dự án', errorMessage);
           this.isSubmitting.set(false);
         }
       });
 
     } catch (err: any) {
-      alert(`❌ Lỗi không xác định: ${err?.message || 'Vui lòng thử lại'}`);
+      this.notificationService.showError('Lỗi không xác định', err?.message || 'Vui lòng thử lại');
       this.isSubmitting.set(false);
     }
   }
@@ -239,7 +241,7 @@ export class CreateProjectModalComponent implements OnInit {
   protected handleAddMember(): void {
     const data = this.formData();
     if (!data.position || !data.member) {
-      alert('Vui lòng chọn vị trí và thành viên');
+      this.notificationService.showWarning('Thiếu thông tin', 'Vui lòng chọn vị trí và thành viên');
       return;
     }
 
@@ -247,7 +249,7 @@ export class CreateProjectModalComponent implements OnInit {
     const selectedUser = this.memberUsers().find((u: User) => u.id === userId);
 
     if (!selectedUser) {
-      alert('Không tìm thấy người dùng');
+      this.notificationService.showError('Lỗi', 'Không tìm thấy người dùng');
       return;
     }
 

@@ -1,10 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { DynamicDsService } from 'dynamic-ds';
+import { NotificationModalComponent } from './components/shared/notification-modal/notification-modal.component';
 // aaaa
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, NotificationModalComponent],
   templateUrl: './app.html',
   styleUrl: './styles.scss',
 })

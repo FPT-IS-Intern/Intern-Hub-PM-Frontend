@@ -27,14 +27,38 @@ export class UserService {
       body.keyword = keyword.trim();
     }
 
-    // Only send filters if they have values, matching HRM frontend behavior
-    // This prevents the HRM backend from applying an "empty" filter (matching nothing)
-    
     const params = new HttpParams()
       .set('page', String(page))
       .set('size', String(size));
 
     return this.http.post<ApiResponse<PaginatedData<any>>>(`${this.apiUrl}/filter`, body, { params })
+      .pipe(
+        map(response => ({
+          ...response,
+          data: response.data.items.map((item: any) => ({
+            id: item.userId,
+            username: item.fullName,
+            email: item.email,
+            avatarUrl: item.avatarUrl,
+            role: item.role,
+            position: item.position
+          }))
+        }))
+      );
+  }
+
+  searchProjectMembers(projectId: string | number, keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<User[]>> {
+    const body: any = {};
+
+    if (keyword && keyword.trim()) {
+      body.keyword = keyword.trim();
+    }
+
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('size', String(size));
+
+    return this.http.post<ApiResponse<PaginatedData<any>>>(`${this.apiUrl}/project-members/${projectId}/search`, body, { params })
       .pipe(
         map(response => ({
           ...response,

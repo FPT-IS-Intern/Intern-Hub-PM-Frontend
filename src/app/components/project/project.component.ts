@@ -1,7 +1,7 @@
 import { Component, signal, computed, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CreateProjectModalComponent } from '../create-project/create-project.component';
 import { ProjectApiService } from '../../services/project.service';
@@ -36,6 +36,7 @@ export interface NotificationAction {
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private projectService = inject(ProjectApiService);
   private destroy$ = new Subject<void>();
 
@@ -94,6 +95,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   stats = computed(() => {
     return [
       { label: 'TỔNG SỐ DỰ ÁN', value: this.totalElements(), icon: '📄', color: 'stat-total', type: 'static' },
+      { label: 'DỰ ÁN CHƯA BẮT ĐẦU', value: 8, icon: '💻', color: 'stat-ongoing', type: 'static' },
       { label: 'DỰ ÁN ĐANG THỰC HIỆN', value: 8, icon: '💻', color: 'stat-ongoing', type: 'static' },
       { label: 'DỰ ÁN HOÀN THÀNH', value: 10, icon: '✅', color: 'stat-completed', type: 'static' },
       { label: 'DỰ ÁN QUÁ HẠN', value: 3, icon: '📋', color: 'stat-overdue', type: 'static' }
@@ -244,7 +246,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   viewProject(project: ProjectDisplay) {
-    this.router.navigate(['project-view', project.id]);
+    const basePath = window.location.pathname.startsWith('/pm') ? '/pm' : '';
+    this.router.navigate([`${basePath}/project-view`, project.id], { state: { project } });
   }
 
   editProject(project: ProjectDisplay) {

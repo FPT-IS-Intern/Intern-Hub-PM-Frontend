@@ -3,7 +3,7 @@
   <div class="modal-container" (click)="$event.stopPropagation()">
     <!-- Header -->
     <div class="modal-header">
-      <h2>Tạo Dự Án</h2>
+      <h2>Tạo Dự Án Team</h2>
       <button type="button" class="close-btn" (click)="handleClose()" [disabled]="isSubmitting()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -17,18 +17,17 @@
     <div class="modal-body">
       <!-- Tên Dự Án -->
       <div class="form-group">
-        <label>Tên Dự Án <span class="required">*</span></label>
-        <input type="text" placeholder="Dự án ABC" [class.error]="errors()['name']" [ngModel]="formData().name"
+        <label>Tên Dự Án Team <span class="required">*</span></label>
+        <input type="text" placeholder="Tên team..." [class.error]="errors()['name']" [ngModel]="formData().name"
           (ngModelChange)="patchForm('name', $event)" [disabled]="isSubmitting()" />
         @if (errors()['name']) { <p class="error-msg">{{ errors()['name'] }}</p> }
       </div>
 
       <!-- Mô Tả -->
-      <div class="form-group ">
+      <div class="form-group">
         <label>Mô Tả</label>
-        <textarea placeholder="Nhập mô tả dự án..." [class.error]="errors()['description']"
-          [ngModel]="formData().description" (ngModelChange)="patchForm('description', $event)"
-          [disabled]="isSubmitting()" maxlength="255"></textarea>
+        <textarea placeholder="Nhập mô tả..." [class.error]="errors()['description']" [ngModel]="formData().description"
+          (ngModelChange)="patchForm('description', $event)" [disabled]="isSubmitting()" maxlength="255"></textarea>
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div style="flex: 1; text-align: left;">
             @if (errors()['description']) { <p class="error-msg" style="margin: 0;">{{ errors()['description'] }}</p> }
@@ -39,12 +38,12 @@
         </div>
       </div>
 
-      <!-- Thêm PM -->
+      <!-- Thêm Leader -->
       <div class="form-group">
-        <label>Thêm PM <span class="required">*</span></label>
+        <label>Chọn Leader <span class="required">*</span></label>
         <div class="search-container">
-          <input type="text" class="search-input" placeholder="Tìm kiếm PM theo tên hoặc email..."
-            (input)="onPmSearchChange($event)" [disabled]="isSubmitting()" />
+          <input type="text" class="search-input" placeholder="Tìm kiếm leader theo tên hoặc email..."
+            (input)="onLeaderSearchChange($event)" [disabled]="isSubmitting()" />
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
@@ -52,9 +51,9 @@
           </svg>
         </div>
         <select [class.error]="errors()['assigneeId']" [ngModel]="formData().assigneeId"
-          (ngModelChange)="patchForm('assigneeId', $event)" [disabled]="isSubmitting() || isLoadingPmUsers()">
-          <option value="">{{ isLoadingPmUsers() ? 'Đang tải...' : 'Chọn PM' }}</option>
-          @for (user of availableUsersForPM(); track user.id) {
+          (ngModelChange)="patchForm('assigneeId', $event)" [disabled]="isSubmitting() || isLoadingLeaderUsers()">
+          <option value="">{{ isLoadingLeaderUsers() ? 'Đang tải...' : 'Chọn Leader' }}</option>
+          @for (user of leaderUsers(); track user.id) {
           <option [value]="user.id">{{ user.username }} - {{ user.email }}</option>
           }
         </select>
@@ -228,7 +227,7 @@
     <div class="modal-footer">
       <button type="button" class="btn btn-cancel" (click)="handleClose()" [disabled]="isSubmitting()">Hủy</button>
       <button type="button" class="btn btn-create" (click)="handleSubmit()" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Đang tạo...' : 'Tạo' }}
+        {{ isSubmitting() ? 'Đang tạo...' : 'Tạo Team' }}
       </button>
     </div>
   </div>
