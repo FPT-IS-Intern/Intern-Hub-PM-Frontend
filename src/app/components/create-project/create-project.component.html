@@ -37,15 +37,19 @@
       <div class="form-group">
         <label>Thêm PM <span class="required">*</span></label>
         <div class="search-container">
-          <input type="text" class="search-input" placeholder="Tìm kiếm PM theo tên hoặc email..." 
-            (input)="onSearchChange($event)" [disabled]="isSubmitting()" />
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" class="search-input" placeholder="Tìm kiếm PM theo tên hoặc email..."
+            (input)="onPmSearchChange($event)" [disabled]="isSubmitting()" />
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
         </div>
         <select [class.error]="errors()['assigneeId']" [ngModel]="formData().assigneeId"
-          (ngModelChange)="patchForm('assigneeId', $event)" [disabled]="isSubmitting() || isLoadingUsers()">
-          <option value="">{{ isLoadingUsers() ? 'Đang tải...' : 'Chọn PM' }}</option>
+          (ngModelChange)="patchForm('assigneeId', $event)" [disabled]="isSubmitting() || isLoadingPmUsers()">
+          <option value="">{{ isLoadingPmUsers() ? 'Đang tải...' : 'Chọn PM' }}</option>
           @for (user of availableUsersForPM(); track user.id) {
-          <option [value]="user.id">{{ user.username }}</option>
+          <option [value]="user.id">{{ user.username }} - {{ user.email }}</option>
           }
         </select>
         @if (errors()['assigneeId']) { <p class="error-msg">{{ errors()['assigneeId'] }}</p> }
@@ -80,15 +84,19 @@
           <div class="form-group">
             <label>Tên thành viên <span class="required">*</span></label>
             <div class="search-container">
-              <input type="text" class="search-input" placeholder="Tìm kiếm thành viên..." 
-                (input)="onSearchChange($event)" [disabled]="isSubmitting()" />
-              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" class="search-input" placeholder="Tìm kiếm thành viên..."
+                (input)="onMemberSearchChange($event)" [disabled]="isSubmitting()" />
+              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
             </div>
             <select [ngModel]="formData().member" (ngModelChange)="patchForm('member', $event)"
-              [disabled]="isLoadingUsers()">
-              <option value="">{{ isLoadingUsers() ? 'Đang tải...' : 'Chọn thành viên' }}</option>
-              @for (user of availableUsersForMembers(); track user.id) { <option [value]="user.id">{{ user.username }}
-              </option> }
+              [disabled]="isLoadingMemberUsers()">
+              <option value="">{{ isLoadingMemberUsers() ? 'Đang tải...' : 'Chọn thành viên' }}</option>
+              @for (user of availableUsersForMembers(); track user.id) {
+              <option [value]="user.id">{{ user.username }} - {{ user.email }}</option> }
             </select>
           </div>
           <div class="form-group" style="justify-content: flex-end;">

@@ -27,20 +27,24 @@ export class CreateProjectModalComponent implements OnInit {
 
   protected readonly positions = ['Developer', 'Designer', 'Project Manager', 'Tester', 'Business Analyst'];
   
-  protected readonly users = signal<User[]>([]);
-  protected readonly isLoadingUsers = signal(false);
-  protected readonly searchKeyword = signal('');
-  private usersLoaded = false;
+  protected readonly pmUsers = signal<User[]>([]);
+  protected readonly memberUsers = signal<User[]>([]);
+  protected readonly isLoadingPmUsers = signal(false);
+  protected readonly isLoadingMemberUsers = signal(false);
+  protected readonly pmSearchKeyword = signal('');
+  protected readonly memberSearchKeyword = signal('');
+  private pmUsersLoaded = false;
+  private memberUsersLoaded = false;
 
   protected readonly availableUsersForPM = computed(() => {
-    const allUsers = this.users();
+    const allUsers = this.pmUsers();
     const memberIds = this.teamMembers().map(m => m.userId);
     return allUsers.filter(u => !memberIds.includes(u.id));
   });
 
   protected readonly availableUsersForMembers = computed(() => {
-    const allUsers = this.users();
-    const pmId = this.formData().pm ? parseInt(this.formData().pm, 10) : null;
+    const allUsers = this.memberUsers();
+    const pmId = this.formData().assigneeId ? parseInt(this.formData().assigneeId, 10) : null;
     const memberIds = this.teamMembers().map(m => m.userId);
     return allUsers.filter(u => u.id !== pmId && !memberIds.includes(u.id));
   });
@@ -59,18 +63,32 @@ export class CreateProjectModalComponent implements OnInit {
     effect(() => {
       if (!this.isOpen()) {
         this.resetState();
-      } else if (!this.usersLoaded) {
-        console.debug('[CreateProjectModal.constructor] Modal opened, loading users...');
-        this.loadUsers();
-        this.usersLoaded = true;
+      } else {
+        if (!this.pmUsersLoaded) {
+          console.debug('[CreateProjectModal.constructor] Loading Initial PM Users');
+          this.loadPmUsers();
+          this.pmUsersLoaded = true;
+        }
+        if (!this.memberUsersLoaded) {
+          console.debug('[CreateProjectModal.constructor] Loading Initial Member Users');
+          this.loadMemberUsers();
+          this.memberUsersLoaded = true;
+        }
       }
     });
 
-    // Effect to reload users when search keyword changes
+    // Separate effects for each search keyword
     effect(() => {
-      const keyword = this.searchKeyword();
+      const keyword = this.pmSearchKeyword();
       if (this.isOpen()) {
-        this.loadUsers(keyword);
+        this.loadPmUsers(keyword);
+      }
+    }, { allowSignalWrites: true });
+
+    effect(() => {
+      const keyword = this.memberSearchKeyword();
+      if (this.isOpen()) {
+        this.loadMemberUsers(keyword);
       }
     }, { allowSignalWrites: true });
   }
@@ -78,27 +96,42 @@ export class CreateProjectModalComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  protected onSearchChange(event: Event): void {
+  protected onPmSearchChange(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.searchKeyword.set(target.value);
+    this.pmSearchKeyword.set(target.value);
   }
 
-  protected loadUsers(keyword: string = ''): void {
-    this.isLoadingUsers.set(true);
-    console.debug('[CreateProjectModal.loadUsers] Starting to fetch users from API with keyword:', keyword);
+  protected onMemberSearchChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.memberSearchKeyword.set(target.value);
+  }
+
+  protected loadPmUsers(keyword: string = ''): void {
+    this.isLoadingPmUsers.set(true);
     this.userService.getUsers(keyword).subscribe({
       next: (response: any) => {
-        if (response.data) {
-          this.users.set(response.data);
-        } else {
-          this.users.set([]);
-        }
-        this.isLoadingUsers.set(false);
+        this.pmUsers.set(response.data || []);
+        this.isLoadingPmUsers.set(false);
       },
       error: (error: any) => {
-        console.error('[CreateProjectModal.loadUsers] ✗ Error loading users:', error);
-        this.users.set([]);
-        this.isLoadingUsers.set(false);
+        console.error('[CreateProjectModal.loadPmUsers] Error:', error);
+        this.pmUsers.set([]);
+        this.isLoadingPmUsers.set(false);
+      }
+    });
+  }
+
+  protected loadMemberUsers(keyword: string = ''): void {
+    this.isLoadingMemberUsers.set(true);
+    this.userService.getUsers(keyword).subscribe({
+      next: (response: any) => {
+        this.memberUsers.set(response.data || []);
+        this.isLoadingMemberUsers.set(false);
+      },
+      error: (error: any) => {
+        console.error('[CreateProjectModal.loadMemberUsers] Error:', error);
+        this.memberUsers.set([]);
+        this.isLoadingMemberUsers.set(false);
       }
     });
   }
@@ -114,7 +147,8 @@ export class CreateProjectModalComponent implements OnInit {
     this.errors.set({});
     this.transactionHash.set('');
     this.isSubmitting.set(false);
-    this.usersLoaded = false;
+    this.pmUsersLoaded = false;
+    this.memberUsersLoaded = false;
   }
 
   private emptyForm(): ProjectFormData {
@@ -125,7 +159,6 @@ export class CreateProjectModalComponent implements OnInit {
       role: '',
       bt: null,
       rt: null,
-      pm: '',
       position: '',
       member: '',
       startDate: '',
@@ -211,7 +244,7 @@ export class CreateProjectModalComponent implements OnInit {
     }
 
     const userId = parseInt(data.member, 10);
-    const selectedUser = this.users().find(u => u.id === userId);
+    const selectedUser = this.memberUsers().find((u: User) => u.id === userId);
     
     if (!selectedUser) {
       alert('Không tìm thấy người dùng');

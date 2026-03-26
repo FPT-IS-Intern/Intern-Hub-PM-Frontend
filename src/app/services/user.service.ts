@@ -21,13 +21,15 @@ export class UserService {
   private apiUrl = `${environment.apiUrl}/pm/users`;
 
   getUsers(keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<User[]>> {
-    const body = {
-      keyword: keyword,
-      sysStatuses: [],
-      roles: [],
-      positions: []
-    };
+    const body: any = {};
 
+    if (keyword && keyword.trim()) {
+      body.keyword = keyword.trim();
+    }
+
+    // Only send filters if they have values, matching HRM frontend behavior
+    // This prevents the HRM backend from applying an "empty" filter (matching nothing)
+    
     const params = new HttpParams()
       .set('page', String(page))
       .set('size', String(size));
@@ -36,7 +38,7 @@ export class UserService {
       .pipe(
         map(response => ({
           ...response,
-          data: response.data.items.map(item => ({
+          data: response.data.items.map((item: any) => ({
             id: item.userId,
             username: item.fullName,
             email: item.email,

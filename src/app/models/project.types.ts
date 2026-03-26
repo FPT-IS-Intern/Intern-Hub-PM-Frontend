@@ -12,7 +12,6 @@ export interface ProjectFormData {
   role: string;
   bt: number | null;
   rt: number | null;
-  pm: string;
   position: string;
   member: string;
   startDate: string;
