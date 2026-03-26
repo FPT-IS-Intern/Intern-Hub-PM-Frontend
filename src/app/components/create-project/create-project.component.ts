@@ -18,7 +18,7 @@ type ProjectFormErrors = Partial<Record<keyof ProjectFormData, string>>;
 export class CreateProjectModalComponent implements OnInit {
   readonly isOpen = input(false);
   readonly privateKey = input<string | undefined>(undefined);
-  readonly currentUserId = input<number | undefined>(undefined); 
+  readonly currentUserId = input<number | undefined>(undefined);
 
   readonly closed = output<void>();
   readonly submitted = output<ProjectFormData>();
@@ -26,7 +26,7 @@ export class CreateProjectModalComponent implements OnInit {
   protected readonly Number = Number;
 
   protected readonly positions = ['Developer', 'Designer', 'Project Manager', 'Tester', 'Business Analyst'];
-  
+
   protected readonly pmUsers = signal<User[]>([]);
   protected readonly memberUsers = signal<User[]>([]);
   protected readonly isLoadingPmUsers = signal(false);
@@ -202,12 +202,12 @@ export class CreateProjectModalComponent implements OnInit {
         assigneeId: parseInt(data.assigneeId, 10),
         name: data.name,
         description: data.description,
-        bt: data.bt ?? 0,
-        rt: data.rt ?? 0,
+        budgetToken: data.bt ?? 0,
+        rewardToken: data.rt ?? 0,
         startDate: (data.startDate && !data.startDate.includes('T')) ? `${data.startDate}T00:00:00` : data.startDate,
         endDate: (data.endDate && !data.endDate.includes('T')) ? `${data.endDate}T00:00:00` : data.endDate,
-        userList: this.teamMembers().map(member => ({
-          id: member.userId,
+        memberList: this.teamMembers().map(member => ({
+          userId: member.userId,
           role: member.position.toUpperCase().replace(/\s+/g, '_')
         }))
       };
@@ -245,7 +245,7 @@ export class CreateProjectModalComponent implements OnInit {
 
     const userId = parseInt(data.member, 10);
     const selectedUser = this.memberUsers().find((u: User) => u.id === userId);
-    
+
     if (!selectedUser) {
       alert('Không tìm thấy người dùng');
       return;

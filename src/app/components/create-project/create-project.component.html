@@ -24,7 +24,7 @@
       </div>
 
       <!-- Mô Tả -->
-      <div class="form-group">
+      <div class="form-group ">
         <label>Mô Tả</label>
         <textarea placeholder="Nhập mô tả dự án..." [class.error]="errors()['description']"
           [ngModel]="formData().description" (ngModelChange)="patchForm('description', $event)"
@@ -73,6 +73,19 @@
 
       <!-- Thành Viên Section -->
       <div class="add-member-section">
+        <div class="form-group">
+          <label>Tìm thành viên <span class="required">*</span></label>
+          <div class="search-container">
+            <input type="text" class="search-input" placeholder="Tìm kiếm thành viên..."
+              (input)="onMemberSearchChange($event)" [disabled]="isSubmitting()" />
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+
+        </div>
         <div class="grid-row cols-3">
           <div class="form-group">
             <label>Chọn vị trí <span class="required">*</span></label>
@@ -82,16 +95,8 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Tên thành viên <span class="required">*</span></label>
-            <div class="search-container">
-              <input type="text" class="search-input" placeholder="Tìm kiếm thành viên..."
-                (input)="onMemberSearchChange($event)" [disabled]="isSubmitting()" />
-              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </div>
+            <label>Chọn thành viên<span class="required">*</span></label>
+
             <select [ngModel]="formData().member" (ngModelChange)="patchForm('member', $event)"
               [disabled]="isLoadingMemberUsers()">
               <option value="">{{ isLoadingMemberUsers() ? 'Đang tải...' : 'Chọn thành viên' }}</option>
@@ -99,6 +104,7 @@
               <option [value]="user.id">{{ user.username }} - {{ user.email }}</option> }
             </select>
           </div>
+
           <div class="form-group" style="justify-content: flex-end;">
             <button type="button" class="add-btn" (click)="handleAddMember()" [disabled]="isSubmitting()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"

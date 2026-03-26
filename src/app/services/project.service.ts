@@ -9,11 +9,11 @@ export interface ProjectApiRequest {
   assigneeId: number;
   name: string;
   description: string;
-  bt: number;
-  rt: number;
+  budgetToken: number;
+  rewardToken: number;
   startDate: string;
   endDate: string;
-  userList: { id: number; role: string }[];
+  memberList: { userId: number; role: string }[];
 }
 
 @Injectable({
