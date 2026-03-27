@@ -13,6 +13,8 @@ interface Task {
   name: string;
   description: string;
   assignee: string;
+  leadName?: string;
+  memberCount?: number;
   startDate: string;
   endDate: string;
   status: 'Chờ duyệt' | 'Đã duyệt' | 'Từ chối' | 'Đang thực hiện';
@@ -95,7 +97,9 @@ export class ProjectViewModalComponent implements OnInit {
             id: String(item.id),
             name: item.name,
             description: item.description,
-            assignee: `ID: ${item.assigneeId}`, // TODO: Map to real name if needed
+            assignee: item.leadName || `ID: ${item.assigneeId}`,
+            leadName: item.leadName,
+            memberCount: item.memberCount || 0,
             startDate: item.startDate ? new Date(item.startDate).toLocaleDateString('vi-VN') : '',
             endDate: item.endDate ? new Date(item.endDate).toLocaleDateString('vi-VN') : '',
             status: this.mapStatus(item.status),

@@ -1,8 +1,6 @@
-// import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-
 import { Component, OnInit, inject } from '@angular/core';
 import { ProjectDetailService } from '../../services/project-detail.service';
-import { ProjectDetail } from '../../models/project-detail.types';
+import { ProjectDetail, CharterDocument } from '../../models/project-detail.types';
 import { CommonModule } from '@angular/common';
 import { Input } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
@@ -47,5 +45,29 @@ export class ProjectDetailComponent implements OnInit {
     return this.projectService.mapTaskStatus(status);
   }
 
+  protected getFileIcon(fileName: string): string {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'pdf': return 'pdf';
+      case 'doc':
+      case 'docx': return 'word';
+      case 'xls':
+      case 'xlsx': return 'excel';
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif': return 'image';
+      default: return 'file';
+    }
+  }
+
+  protected getFileExtension(fileName: string): string {
+    return fileName.split('.').pop()?.toUpperCase() || 'FILE';
+  }
+
+  protected downloadDocument(doc: CharterDocument): void {
+    if (!doc.fileUrl) return;
+    window.open(doc.fileUrl, '_blank');
+  }
 
 }

@@ -164,8 +164,8 @@
             <tr>
               <th width="40"><input type="checkbox"></th>
               <th width="60">STT</th>
-              <th>Dự án team</th>
-              <th>Leader</th>
+              <th>Dự Án Team</th>
+              <th>Lead</th>
               <th>Mô tả</th>
               <th>Trạng Thái</th>
               <th>Bắt đầu</th>
@@ -181,7 +181,7 @@
               <td>
                 <div class="task-cell">
                   <span class="task-name">{{ task.name }}</span>
-                  <span class="task-assignee">{{ task.assignee }}</span>
+                  <span class="task-members">Số thành viên: {{ task.memberCount }}</span>
                 </div>
               </td>
               <td>{{ task.assignee }}</td>
@@ -227,7 +227,8 @@
           <div class="info">Hiển thị {{ (currentPage() * pageSize()) + 1 }}-{{ (currentPage() + 1) * pageSize() >
             totalItems() ? totalItems() : (currentPage() + 1) * pageSize() }} trong tổng số {{ totalItems() }}</div>
           <div class="pagination">
-            <button class="arrow" [class.disabled]="currentPage() === 0" (click)="currentPage.set(currentPage() - 1); loadTeams()">
+            <button class="arrow" [class.disabled]="currentPage() === 0"
+              (click)="currentPage.set(currentPage() - 1); loadTeams()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>

@@ -106,10 +106,25 @@
         <h2 class="card-title">Tài liệu dự án (Charter)</h2>
       </div>
       
-      <div class="documents-list" *ngIf="p.charterDocuments && p.charterDocuments.length > 0">
-        <div class="document-item" *ngFor="let doc of p.charterDocuments">
-          <span class="doc-icon">📄</span>
-          <a [href]="doc.fileUrl" target="_blank" class="doc-link">{{ doc.fileName }}</a>
+      <div class="documents-grid" *ngIf="p.charterDocuments && p.charterDocuments.length > 0">
+        <div class="document-card" *ngFor="let doc of p.charterDocuments">
+          <div class="file-icon-wrapper" [attr.data-type]="getFileExtension(doc.fileName)">
+            <div class="file-icon" [ngClass]="getFileIcon(doc.fileName)"></div>
+            <div class="file-type-label">{{ getFileExtension(doc.fileName) }}</div>
+          </div>
+          <div class="document-info">
+            <span class="file-name" [title]="doc.fileName">{{ doc.fileName }}</span>
+            <div class="file-meta">
+              <span>{{ doc.createdAt ? (doc.createdAt | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</span>
+            </div>
+          </div>
+          <button class="download-btn" (click)="downloadDocument(doc)" title="Tải xuống">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y1="3"></line>
+            </svg>
+          </button>
         </div>
       </div>
 

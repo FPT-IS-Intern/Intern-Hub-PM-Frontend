@@ -23,6 +23,7 @@ export interface CharterDocument {
   id: string;
   fileName: string;
   fileUrl: string;
+  createdAt?: number;
 }
 
 export type ProjectStatus = 'CHUA_BAT_DAU' | 'DANG_THUC_HIEN' | 'CHO_DUYET' | 'DA_DUYET' | 'TU_CHOI' | 'DA_XOA' | 'QUA_HAN';
