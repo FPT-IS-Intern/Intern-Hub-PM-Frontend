@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import { ApiResponse, PaginatedData } from '../models/common.types';
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email?: string;
   avatarUrl?: string;
@@ -50,7 +50,7 @@ export class UserService {
       );
   }
 
-  searchProjectMembers(projectId: string | number, keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<PaginatedData<User>>> {
+  searchProjectMembers(projectId: string, keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<PaginatedData<User>>> {
     const body: any = {};
 
     if (keyword && keyword.trim()) {

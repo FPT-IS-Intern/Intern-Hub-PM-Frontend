@@ -11,7 +11,7 @@ import { UserService, User } from '../../services/user.service';
   styleUrl: './project-member-list.component.scss'
 })
 export class ProjectMemberListComponent implements OnInit {
-  projectId = input.required<string | number>();
+  projectId = input.required<string>();
   
   protected readonly members = signal<User[]>([]);
   protected readonly isLoading = signal(false);

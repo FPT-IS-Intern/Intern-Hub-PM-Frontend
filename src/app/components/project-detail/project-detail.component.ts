@@ -15,7 +15,7 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrl: './project-detail.component.scss'
 })
 export class ProjectDetailComponent implements OnInit {
-  @Input() projectId!: string | number;
+  @Input() projectId!: string;
   project: ProjectDetail | null = null;
   
   private projectService = inject(ProjectDetailService);

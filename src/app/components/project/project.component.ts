@@ -9,7 +9,7 @@ import { ProjectListItem } from '../../models/project.types';
 
 // Mock types since services are missing
 export interface ProjectDisplay {
-  id: number;
+  id: string;
   name: string;
   description: string;
   status: string;
@@ -66,14 +66,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
   createModalOpen = signal(false);
 
   // Dropdown state
-  activeDropdownId = signal<number | null>(null);
+  activeDropdownId = signal<string | null>(null);
 
   @HostListener('document:click')
   onDocumentClick() {
     this.activeDropdownId.set(null);
   }
 
-  toggleDropdown(event: Event, projectId: number) {
+  toggleDropdown(event: Event, projectId: string) {
     event.stopPropagation();
     this.activeDropdownId.update(id => id === projectId ? null : projectId);
   }
@@ -157,7 +157,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   private mapToDisplay(item: ProjectListItem): ProjectDisplay {
     return {
-      id: item.id,
+      id: String(item.id),
       name: item.name,
       description: item.description,
       status: this.mapStatus(item.status),

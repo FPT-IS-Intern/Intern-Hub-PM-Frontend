@@ -1,7 +1,14 @@
 export interface TeamMember {
-  id: number;
+  id: string;
   name: string;
-  userId: number;
+  userId: string;
+  position: string;
+}
+
+export interface Task {
+  id: string;
+  name: string;
+  userId: string;
   position: string;
 }
 
@@ -26,11 +33,11 @@ export interface CreateProjectParams {
   rt: number;
   startDate: string;
   endDate: string;
-  userList: { id: number; role: string }[];
+  userList: { id: string; role: string }[];
 }
 
 export interface ProjectListItem {
-  id: number;
+  id: string;
   projectUUID: string;
   name: string;
   description: string;
@@ -38,15 +45,15 @@ export interface ProjectListItem {
   status: string;
   budgetToken: number;
   rewardToken: number;
-  creatorId: number;
-  assigneeId: number;
+  creatorId: string;
+  assigneeId: string;
   deliverableDescription: string | null;
   deliverableLink: string | null;
   completionComment: string | null;
   startDate: string;
   endDate: string;
   charterDocuments: {
-    id: number;
+    id: string;
     fileName: string;
     fileUrl: string;
   }[];

@@ -19,7 +19,7 @@ type ProjectFormErrors = Partial<Record<keyof ProjectFormData, string>>;
 export class CreateProjectModalComponent implements OnInit {
   readonly isOpen = input(false);
   readonly privateKey = input<string | undefined>(undefined);
-  readonly currentUserId = input<number | undefined>(undefined);
+  readonly currentUserId = input<string | undefined>(undefined);
 
   readonly closed = output<void>();
   readonly submitted = output<ProjectFormData>();
@@ -45,7 +45,7 @@ export class CreateProjectModalComponent implements OnInit {
 
   protected readonly availableUsersForMembers = computed(() => {
     const allUsers = this.memberUsers();
-    const pmId = this.formData().assigneeId ? parseInt(this.formData().assigneeId, 10) : null;
+    const pmId = this.formData().assigneeId || null;
     const memberIds = this.teamMembers().map(m => m.userId);
     return allUsers.filter(u => u.id !== pmId && !memberIds.includes(u.id));
   });
@@ -201,7 +201,7 @@ export class CreateProjectModalComponent implements OnInit {
       const data = this.formData();
 
       const apiRequest: ProjectApiRequest = {
-        assigneeId: parseInt(data.assigneeId, 10),
+        assigneeId: data.assigneeId,
         name: data.name,
         description: data.description,
         budgetToken: data.bt ?? 0,
@@ -245,7 +245,7 @@ export class CreateProjectModalComponent implements OnInit {
       return;
     }
 
-    const userId = parseInt(data.member, 10);
+    const userId = data.member;
     const selectedUser = this.memberUsers().find((u: User) => u.id === userId);
 
     if (!selectedUser) {
@@ -254,7 +254,7 @@ export class CreateProjectModalComponent implements OnInit {
     }
 
     const newMember: TeamMember = {
-      id: Date.now(),
+      id: Date.now().toString(),
       name: selectedUser.username,
       userId: userId,
       position: data.position,
@@ -264,7 +264,7 @@ export class CreateProjectModalComponent implements OnInit {
     this.formData.set({ ...data, position: '', member: '' });
   }
 
-  protected handleRemoveMember(id: number): void {
+  protected handleRemoveMember(id: string): void {
     this.teamMembers.set(this.teamMembers().filter((m) => m.id !== id));
   }
 

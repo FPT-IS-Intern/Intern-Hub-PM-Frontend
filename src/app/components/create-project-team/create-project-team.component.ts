@@ -16,7 +16,7 @@ type TeamFormErrors = Partial<Record<keyof ProjectFormData, string>>;
 })
 export class CreateProjectTeamComponent implements OnInit {
   readonly isOpen = input(false);
-  readonly projectId = input<string | number>('');
+  readonly projectId = input<string>('');
 
   readonly closed = output<void>();
   readonly submitted = output<ProjectFormData>();
@@ -42,7 +42,7 @@ export class CreateProjectTeamComponent implements OnInit {
 
   protected readonly availableUsersForMembers = computed(() => {
     const allUsers = this.memberUsers();
-    const leaderId = this.formData().assigneeId ? parseInt(this.formData().assigneeId, 10) : null;
+    const leaderId = this.formData().assigneeId || null;
     const memberIds = this.teamMembers().map(m => m.userId);
     return allUsers.filter(u => u.id !== leaderId && !memberIds.includes(u.id));
   });
@@ -189,7 +189,7 @@ export class CreateProjectTeamComponent implements OnInit {
       return;
     }
 
-    const userId = parseInt(data.member, 10);
+    const userId = data.member;
     const selectedUser = this.memberUsers().find((u: User) => u.id === userId);
 
     if (!selectedUser) {
@@ -198,7 +198,7 @@ export class CreateProjectTeamComponent implements OnInit {
     }
 
     const newMember: TeamMember = {
-      id: Date.now(),
+      id: Date.now().toString(),
       name: selectedUser.username,
       userId: userId,
       position: data.position,
@@ -208,7 +208,7 @@ export class CreateProjectTeamComponent implements OnInit {
     this.formData.set({ ...data, position: '', member: '' });
   }
 
-  protected handleRemoveMember(id: number): void {
+  protected handleRemoveMember(id: string): void {
     this.teamMembers.set(this.teamMembers().filter((m) => m.id !== id));
   }
 

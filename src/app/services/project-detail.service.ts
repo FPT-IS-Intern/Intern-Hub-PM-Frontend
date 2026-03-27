@@ -19,7 +19,7 @@ export class ProjectDetailService {
   /**
    * Lấy thông tin chi tiết dự án
    */
-  getProjectDetail(projectId: string | number): Observable<ProjectDetail | null> {
+  getProjectDetail(projectId: string): Observable<ProjectDetail | null> {
     return this.http
       .get<ApiResponse<ProjectDetail>>(
         `${this.apiUrl}/project/${projectId}/detail`

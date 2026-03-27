@@ -6,14 +6,14 @@ import { ApiResponse, PaginatedData } from '../models/common.types';
 import { environment } from '../../environments/environment';
 
 export interface ProjectApiRequest {
-  assigneeId: number;
+  assigneeId: string;
   name: string;
   description: string;
   budgetToken: number;
   rewardToken: number;
   startDate: string;
   endDate: string;
-  memberList: { userId: number; role: string }[];
+  memberList: { userId: string; role: string }[];
 }
 
 @Injectable({

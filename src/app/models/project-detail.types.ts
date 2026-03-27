@@ -1,5 +1,5 @@
 export interface ProjectDetail {
-  id: number;
+  id: string;
   workItemUuid: string;
   name: string;
   description: string;
@@ -20,7 +20,7 @@ export interface ProjectDetail {
 export type ProjectStatus = 'CHUA_BAT_DAU' | 'DANG_THUC_HIEN' | 'CHO_DUYET' | 'DA_DUYET' | 'TU_CHOI' | 'DA_XOA' | 'QUA_HAN';
 
 export interface Task {
-  id: number;
+  id: string;
   name: string;
   assignee?: string;
   startDate: string;
