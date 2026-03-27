@@ -193,9 +193,13 @@ export class CreateProjectTeamComponent implements OnInit {
 
       this.teamService.createTeam(apiRequest, data.files).subscribe({
         next: (response) => {
-          this.notificationService.showSuccess('Thành công', 'Dự án team đã được khởi tạo');
-          this.submitted.emit(data);
-          this.handleClose();
+          if (response.status?.code === 'success') {
+            this.notificationService.showSuccess('Thành công', response.status.message || 'Dự án team đã được khởi tạo');
+            this.submitted.emit(data);
+            this.handleClose();
+          } else {
+            this.notificationService.showError('Lỗi', response.status?.message || 'Không thể tạo dự án team');
+          }
           this.isSubmitting.set(false);
         },
         error: (error) => {

@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectDetailComponent } from '../project-detail/project-detail.component';
 import { CreateProjectTeamComponent } from '../create-project-team/create-project-team.component';
 import { ProjectMemberListComponent } from '../project-member-list/project-member-list.component';
+import { TeamApiService } from '../../services/team.service';
 
 interface Task {
   id: string;
@@ -29,6 +30,7 @@ interface Task {
 export class ProjectViewModalComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private teamService = inject(TeamApiService);
 
   protected readonly projectId = signal<string | null>(null);
   protected readonly projectName = signal('Đang tải...');
@@ -45,11 +47,15 @@ export class ProjectViewModalComponent implements OnInit {
   protected readonly activeDropdownId = signal<string | null>(null);
 
   protected readonly createTeamModalOpen = signal(false);
+  protected readonly isLoading = signal(false);
+  protected readonly currentPage = signal(0);
+  protected readonly pageSize = signal(10);
+  protected readonly totalItems = signal(0);
 
   protected readonly stats = computed(() => {
     const allTasks = this.tasks();
     return [
-      { label: 'TỔNG DỰ ÁN TEAM', value: 3, icon: '📄', color: 'stat-total', type: 'static' },
+      { label: 'TỔNG DỰ ÁN TEAM', value: allTasks.length, icon: '📄', color: 'stat-total', type: 'static' },
       { label: 'DỰ ÁN TEAM CHƯA BẮT ĐẦU', value: allTasks.filter(t => t.status === 'Chờ duyệt').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
       { label: 'DỰA ÁN TEAM ĐANG THỰC HIỆN', value: allTasks.filter(t => t.status === 'Đang thực hiện').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
       { label: 'DỰ ÁN TEAM HOÀN THÀNH', value: allTasks.filter(t => t.status === 'Đã duyệt').length, icon: '✅', color: 'stat-completed', type: 'static' },
@@ -57,17 +63,7 @@ export class ProjectViewModalComponent implements OnInit {
     ];
   });
 
-  protected readonly tasks = signal<Task[]>([
-    { id: '1', name: 'Phân tích yêu cầu hệ thống', description: 'Mô tả phân tích yêu cầu', assignee: 'Nguyễn Văn A', startDate: '15/12/2025', endDate: '20/12/2025', status: 'Chờ duyệt', points: 150, avgPoints: 120 },
-    { id: '2', name: 'Thiết kế Database Schema', description: 'Mô tả thiết kế database', assignee: 'Trần Thị B', startDate: '21/12/2025', endDate: '25/12/2025', status: 'Đang thực hiện', points: 200, avgPoints: 180 },
-    { id: '3', name: 'Thiết kế giao diện (Figma)', description: 'Mô tả thiết kế Figma', assignee: 'Lê Văn C', startDate: '15/12/2025', endDate: '30/12/2025', status: 'Đã duyệt', points: 300, avgPoints: 300 },
-    { id: '4', name: 'Cài đặt môi trường Dev', description: 'Mô tả cài đặt môi trường', assignee: 'Nguyễn Văn A', startDate: '12/12/2025', endDate: '14/12/2025', status: 'Đã duyệt', points: 50, avgPoints: 50 },
-    { id: '5', name: 'Viết API Cơ bản', description: 'Mô tả viết API', assignee: 'Phạm Minh D', startDate: '26/12/2025', endDate: '05/01/2026', status: 'Chờ duyệt', points: 250, avgPoints: 200 },
-    { id: '6', name: 'Kiểm thử Unit Test', description: 'Mô tả kiểm thử', assignee: 'Hoàng Văn E', startDate: '28/12/2025', endDate: '30/12/2025', status: 'Chờ duyệt', points: 100, avgPoints: 100 },
-    { id: '7', name: 'Fix bug UI/UX', description: 'Mô tả fix bug', assignee: 'Lê Văn C', startDate: '01/01/2026', endDate: '05/01/2026', status: 'Chờ duyệt', points: 100, avgPoints: 100 },
-    { id: '8', name: 'Deploy môi trường Staging', description: 'Mô tả deploy', assignee: 'Nguyễn Văn A', startDate: '06/01/2026', endDate: '08/01/2026', status: 'Chờ duyệt', points: 150, avgPoints: 150 },
-    { id: '9', name: 'Viết tài liệu hướng dẫn', description: 'Mô tả viết tài liệu', assignee: 'Trần Thị B', startDate: '08/01/2026', endDate: '10/01/2026', status: 'Chờ duyệt', points: 80, avgPoints: 80 },
-  ]);
+  protected readonly tasks = signal<Task[]>([]);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -82,6 +78,48 @@ export class ProjectViewModalComponent implements OnInit {
       this.dateRange.set(`${p.startDate || ''} - ${p.endDate || ''}`);
     } else {
       this.projectName.set(`Dự án ${id}`);
+    }
+
+    this.loadTeams();
+  }
+
+  protected loadTeams(): void {
+    const pid = this.projectId();
+    if (!pid) return;
+
+    this.isLoading.set(true);
+    this.teamService.getTeams(pid, this.currentPage(), this.pageSize()).subscribe({
+      next: (response) => {
+        if (response.status.code === 'success' && response.data) {
+          const mappedTasks: Task[] = response.data.items.map((item: any) => ({
+            id: String(item.id),
+            name: item.name,
+            description: item.description,
+            assignee: `ID: ${item.assigneeId}`, // TODO: Map to real name if needed
+            startDate: item.startDate ? new Date(item.startDate).toLocaleDateString('vi-VN') : '',
+            endDate: item.endDate ? new Date(item.endDate).toLocaleDateString('vi-VN') : '',
+            status: this.mapStatus(item.status),
+            points: item.budgetToken || 0,
+            avgPoints: item.rewardToken || 0
+          }));
+          this.tasks.set(mappedTasks);
+          this.totalItems.set(response.data.totalItems);
+        }
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Lỗi load danh sách team:', err);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private mapStatus(status: string): any {
+    switch (status) {
+      case 'NOT_STARTED': return 'Chờ duyệt';
+      case 'IN_PROGRESS': return 'Đang thực hiện';
+      case 'COMPLETED': return 'Đã duyệt';
+      default: return status;
     }
   }
 
@@ -120,7 +158,7 @@ export class ProjectViewModalComponent implements OnInit {
 
   protected onTeamSubmitted(data: any): void {
     console.log('Project Team submitted:', data);
-    // TODO: Connect to backend API when available
+    this.loadTeams();
   }
 
   protected resetFilters(): void {

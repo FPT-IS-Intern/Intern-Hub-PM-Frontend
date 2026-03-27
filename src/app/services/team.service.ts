@@ -40,10 +40,14 @@ export class TeamApiService {
     return this.http.post<ApiResponse<any>>(this.apiUrl, formData);
   }
 
-  getTeams(page: number = 0, size: number = 10): Observable<ApiResponse<PaginatedData<any>>> {
-    const params = new HttpParams()
+  getTeams(projectId?: string, page: number = 0, size: number = 10): Observable<ApiResponse<PaginatedData<any>>> {
+    let params = new HttpParams()
       .set('page', String(page))
       .set('size', String(size));
+
+    if (projectId) {
+      params = params.set('projectId', projectId);
+    }
 
     return this.http.get<ApiResponse<PaginatedData<any>>>(this.apiUrl, { params });
   }
