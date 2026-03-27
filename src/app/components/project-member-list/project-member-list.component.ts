@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject, input, effect } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User } from '../../services/user.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-project-member-list',
@@ -15,7 +16,7 @@ export class ProjectMemberListComponent implements OnInit {
   
   protected readonly members = signal<User[]>([]);
   protected readonly isLoading = signal(false);
-  protected readonly searchTerm = signal('');
+  protected searchTerm = '';
   
   protected readonly currentPage = signal(1);
   protected readonly pageSize = signal(10);
@@ -23,6 +24,7 @@ export class ProjectMemberListComponent implements OnInit {
   protected readonly totalItems = signal(0);
 
   private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
 
   constructor() {
     // Reload when projectId changes
@@ -44,7 +46,7 @@ export class ProjectMemberListComponent implements OnInit {
     this.isLoading.set(true);
     this.userService.searchProjectMembers(
       id, 
-      this.searchTerm(), 
+      this.searchTerm, 
       this.currentPage() - 1, 
       this.pageSize()
     ).subscribe({
@@ -68,7 +70,7 @@ export class ProjectMemberListComponent implements OnInit {
   }
 
   onRefresh() {
-    this.searchTerm.set('');
+    this.searchTerm = '';
     this.currentPage.set(1);
     this.loadMembers();
   }
@@ -95,5 +97,14 @@ export class ProjectMemberListComponent implements OnInit {
   openAddMemberModal() {
     console.log('Open add member modal');
     // Implementation for later
+  }
+
+  removeMember(memberId: string) {
+    if (confirm('Bạn có chắc chắn muốn xóa thành viên này khỏi dự án?')) {
+      // Logic xóa thành viên (thường gọi qua ProjectService hoặc tương tự)
+      console.log('Remove member:', memberId);
+      // Giả sử có api xóa ở backend, hiện tại tôi chỉ log
+      this.notificationService.showWarning('Thông báo', 'Tính năng xóa thành viên đang được phát triển');
+    }
   }
 }

@@ -37,13 +37,14 @@
           <th>Tên thành viên</th>
           <th>Email</th>
           <th>Vị trí</th>
-          <th class="text-center">Số task đang làm</th>
+          <th class="text-center">Số dự án tham gia</th>
+          <th class="text-center">Thao tác</th>
         </tr>
       </thead>
       <tbody>
         @if (isLoading()) {
         <tr>
-          <td colspan="4" class="text-center py-8">Đang tải danh sách thành viên...</td>
+          <td colspan="6" class="text-center py-8">Đang tải danh sách thành viên...</td>
         </tr>
         } @else {
         @for (member of members(); track member.id; let i = $index) {
@@ -52,7 +53,10 @@
           <td class="fw-bold">{{ member.username }}</td>
           <td>{{ member.email }}</td>
           <td>{{ member.position || 'BA' }}</td>
-          <td class="text-center">1</td>
+          <td class="text-center">{{ member.countProjectTeam || 0 }}</td>
+          <td>
+            <button class="btn btn-danger" (click)="removeMember(member.id)">Xóa</button>
+          </td>
         </tr>
         }
         @if (members().length === 0) {

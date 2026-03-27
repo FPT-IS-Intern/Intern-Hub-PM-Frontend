@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User } from '../../services/user.service';
 import { NotificationService } from '../../services/notification.service';
+import { TeamApiService, TeamApiRequest } from '../../services/team.service';
 import { ProjectFormData, TeamMember } from '../../models/project.types';
 
 type TeamFormErrors = Partial<Record<keyof ProjectFormData, string>>;
@@ -54,6 +55,7 @@ export class CreateProjectTeamComponent implements OnInit {
 
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);
+  private readonly teamService = inject(TeamApiService);
 
   constructor() {
     effect(() => {
@@ -172,12 +174,39 @@ export class CreateProjectTeamComponent implements OnInit {
     this.isSubmitting.set(true);
     try {
       const data = this.formData();
-      this.submitted.emit(data);
-      this.notificationService.showSuccess('Thành công', 'Dự án team đã được khởi tạo');
-      this.handleClose();
+      const members = this.teamMembers();
+
+      const apiRequest: TeamApiRequest = {
+        name: data.name.trim(),
+        description: data.description.trim(),
+        budgetToken: Number(data.bt),
+        rewardToken: Number(data.rt),
+        assigneeId: data.assigneeId,
+        projectId: this.projectId(),
+        startDate: data.startDate,
+        endDate: data.endDate,
+        memberList: members.map(m => ({
+          userId: m.userId,
+          role: m.position
+        }))
+      };
+
+      this.teamService.createTeam(apiRequest, data.files).subscribe({
+        next: (response) => {
+          this.notificationService.showSuccess('Thành công', 'Dự án team đã được khởi tạo');
+          this.submitted.emit(data);
+          this.handleClose();
+          this.isSubmitting.set(false);
+        },
+        error: (error) => {
+          console.error('Failed to create team project', error);
+          const errorMessage = error.error?.status?.message || 'Không thể tạo dự án team';
+          this.notificationService.showError('Lỗi', errorMessage);
+          this.isSubmitting.set(false);
+        }
+      });
     } catch (err: any) {
-      this.notificationService.showError('Lỗi', 'Không thể tạo dự án team');
-    } finally {
+      this.notificationService.showError('Lỗi', 'Đã xảy ra lỗi không xác định');
       this.isSubmitting.set(false);
     }
   }

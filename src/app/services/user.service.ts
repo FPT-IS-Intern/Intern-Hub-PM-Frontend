@@ -8,7 +8,7 @@ export interface User {
   id: string;
   username: string;
   email?: string;
-  avatarUrl?: string;
+  countProjectTeam?: number;
   role?: string;
   position?: string;
 }
@@ -41,7 +41,7 @@ export class UserService {
               id: String(item.userId),
               username: item.fullName,
               email: item.email,
-              avatarUrl: item.avatarUrl,
+              countProjectTeam: item.countProjectTeam,
               role: item.role,
               position: item.position
             }))
@@ -71,7 +71,7 @@ export class UserService {
               id: String(item.userId),
               username: item.fullName,
               email: item.email,
-              avatarUrl: item.avatarUrl,
+              countProjectTeam: item.countProjectTeam,
               role: item.role,
               position: item.position
             }))
