@@ -112,7 +112,9 @@ export class CreateProjectModalComponent implements OnInit {
     this.isLoadingPmUsers.set(true);
     this.userService.getUsers(keyword).subscribe({
       next: (response: any) => {
-        this.pmUsers.set(response.data?.items || []);
+        const users = response.data?.items || [];
+        console.log('[CreateProjectModal.loadPmUsers] Danh sách PM tải từ API:', users);
+        this.pmUsers.set(users);
         this.isLoadingPmUsers.set(false);
       },
       error: (error: any) => {
@@ -127,7 +129,9 @@ export class CreateProjectModalComponent implements OnInit {
     this.isLoadingMemberUsers.set(true);
     this.userService.getUsers(keyword).subscribe({
       next: (response: any) => {
-        this.memberUsers.set(response.data?.items || []);
+        const users = response.data?.items || [];
+        console.log('[CreateProjectModal.loadMemberUsers] Danh sách Member tải từ API:', users);
+        this.memberUsers.set(users);
         this.isLoadingMemberUsers.set(false);
       },
       error: (error: any) => {
@@ -213,6 +217,12 @@ export class CreateProjectModalComponent implements OnInit {
           role: member.position.toUpperCase().replace(/\s+/g, '_')
         }))
       };
+
+      console.log("=== THÔNG TIN USER KHI ẤN TẠO DỰ ÁN ===");
+      console.log("👉 ID của PM (assigneeId):", typeof data.assigneeId, data.assigneeId);
+      console.log("👉 Danh sách thành viên đã chọn trên UI (teamMembers):", this.teamMembers());
+      console.log("👉 Dữ liệu memberList sẽ gửi xuống Backend:", apiRequest.memberList);
+      console.log("=========================================");
 
       this.projectApiService.createProject(apiRequest, data.files).subscribe({
         next: (response) => {
