@@ -19,7 +19,7 @@ export class ProjectMemberListComponent implements OnInit {
   
   protected readonly currentPage = signal(1);
   protected readonly pageSize = signal(10);
-  protected readonly totalPages = signal(20); // Dummy for UI
+  protected readonly totalPages = signal(0);
   protected readonly totalItems = signal(0);
 
   private readonly userService = inject(UserService);
@@ -42,8 +42,6 @@ export class ProjectMemberListComponent implements OnInit {
     if (!id) return;
 
     this.isLoading.set(true);
-    // Note: the current service implementation only returns User[], 
-    // we use dummy pagination info to match the UI requirements.
     this.userService.searchProjectMembers(
       id, 
       this.searchTerm(), 
@@ -51,8 +49,10 @@ export class ProjectMemberListComponent implements OnInit {
       this.pageSize()
     ).subscribe({
       next: (res) => {
-        this.members.set(res.data || []);
-        this.totalItems.set(res.data?.length || 0);
+        const paginatedData = res.data;
+        this.members.set(paginatedData?.items || []);
+        this.totalItems.set(paginatedData?.totalItems || 0);
+        this.totalPages.set(paginatedData?.totalPages || 0);
       },
       error: (err) => {
         console.error('Error loading members:', err);

@@ -20,7 +20,7 @@ export class UserService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/pm/users`;
 
-  getUsers(keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<User[]>> {
+  getUsers(keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<PaginatedData<User>>> {
     const body: any = {};
 
     if (keyword && keyword.trim()) {
@@ -35,19 +35,22 @@ export class UserService {
       .pipe(
         map(response => ({
           ...response,
-          data: response.data.items.map((item: any) => ({
-            id: item.userId,
-            username: item.fullName,
-            email: item.email,
-            avatarUrl: item.avatarUrl,
-            role: item.role,
-            position: item.position
-          }))
+          data: {
+            ...response.data,
+            items: response.data.items.map((item: any) => ({
+              id: item.userId,
+              username: item.fullName,
+              email: item.email,
+              avatarUrl: item.avatarUrl,
+              role: item.role,
+              position: item.position
+            }))
+          }
         }))
       );
   }
 
-  searchProjectMembers(projectId: string | number, keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<User[]>> {
+  searchProjectMembers(projectId: string | number, keyword: string = '', page: number = 0, size: number = 20): Observable<ApiResponse<PaginatedData<User>>> {
     const body: any = {};
 
     if (keyword && keyword.trim()) {
@@ -62,14 +65,17 @@ export class UserService {
       .pipe(
         map(response => ({
           ...response,
-          data: response.data.items.map((item: any) => ({
-            id: item.userId,
-            username: item.fullName,
-            email: item.email,
-            avatarUrl: item.avatarUrl,
-            role: item.role,
-            position: item.position
-          }))
+          data: {
+            ...response.data,
+            items: response.data.items.map((item: any) => ({
+              id: item.userId,
+              username: item.fullName,
+              email: item.email,
+              avatarUrl: item.avatarUrl,
+              role: item.role,
+              position: item.position
+            }))
+          }
         }))
       );
   }
