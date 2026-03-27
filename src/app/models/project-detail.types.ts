@@ -1,20 +1,28 @@
 export interface ProjectDetail {
   id: string;
-  workItemUuid: string;
+  projectUUID: string;
   name: string;
   description: string;
-  creator: string;
-  assignee: string;
-  status: ProjectStatus;
-  bt: number;
-  rt: number;
-  result: string;
-  resultLink: string;
-  note: string;
+  note: string | null;
+  status: string;
+  budgetToken: number;
+  rewardToken: number;
+  creatorId: string;
+  assigneeId: string;
+  deliverableDescription: string | null;
+  deliverableLink: string | null;
+  completionComment: string | null;
   startDate: string;
   endDate: string;
-  createdAt: string;
-  updatedAt: string;
+  charterDocuments: CharterDocument[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface CharterDocument {
+  id: string;
+  fileName: string;
+  fileUrl: string;
 }
 
 export type ProjectStatus = 'CHUA_BAT_DAU' | 'DANG_THUC_HIEN' | 'CHO_DUYET' | 'DA_DUYET' | 'TU_CHOI' | 'DA_XOA' | 'QUA_HAN';

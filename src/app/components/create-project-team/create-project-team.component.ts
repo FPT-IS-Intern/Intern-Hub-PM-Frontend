@@ -183,8 +183,8 @@ export class CreateProjectTeamComponent implements OnInit {
         rewardToken: Number(data.rt),
         assigneeId: data.assigneeId,
         projectId: this.projectId(),
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: data.startDate ? `${data.startDate}T00:00:00` : '',
+        endDate: data.endDate ? `${data.endDate}T23:59:59` : '',
         memberList: members.map(m => ({
           userId: m.userId,
           role: m.position

@@ -31,11 +31,11 @@ export class ProjectDetailComponent implements OnInit {
       });
   }
 
-  protected formatDate(date: string): string {
+  protected formatDate(date: string | number): string {
     return this.projectService.formatDate(date);
   }
 
-  protected formatDateTimeShort(date: string): string {
+  protected formatDateTimeShort(date: string | number): string {
     return this.projectService.formatDateTimeShort(date);
   }
 

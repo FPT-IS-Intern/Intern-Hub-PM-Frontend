@@ -20,8 +20,8 @@
         </div>
 
         <div class="info-row">
-          <span class="info-label">Mã nhiệm vụ</span>
-          <span class="info-value mono">{{ p.workItemUuid }}</span>
+          <span class="info-label">Mã dự án (UUID)</span>
+          <span class="info-value mono">{{ p.projectUUID }}</span>
         </div>
 
         <div class="info-row">
@@ -50,40 +50,41 @@
         </div>
 
         <div class="info-row">
-          <span class="info-label">Điểm ngân sách</span>
-          <span class="info-value points bt">{{ p.bt | number }}</span>
+          <span class="info-label">Ngân sách (BT)</span>
+          <span class="info-value points bt">{{ p.budgetToken | number }}</span>
         </div>
 
         <div class="info-row">
-          <span class="info-label">Điểm thưởng</span>
-          <span class="info-value points rt">{{ p.rt | number }}</span>
+          <span class="info-label">Thưởng (RT)</span>
+          <span class="info-value points rt">{{ p.rewardToken | number }}</span>
         </div>
 
         <div class="info-row">
-          <span class="info-label">Kết quả</span>
-          <span class="info-value">{{ p.result }}</span>
+          <span class="info-label">Mô tả kết quả</span>
+          <span class="info-value">{{ p.deliverableDescription || 'Chưa có' }}</span>
         </div>
 
         <div class="info-row">
           <span class="info-label">Link kết quả</span>
-          <a [href]="p.resultLink" class="info-value link" target="_blank">
-            {{ p.resultLink }}
+          <a *ngIf="p.deliverableLink" [href]="p.deliverableLink" class="info-value link" target="_blank">
+            {{ p.deliverableLink }}
           </a>
+          <span *ngIf="!p.deliverableLink" class="info-value">Chưa có</span>
         </div>
 
         <div class="info-row">
           <span class="info-label">Ghi chú</span>
-          <span class="info-value">{{ p.note }}</span>
+          <span class="info-value">{{ p.note || 'Không có' }}</span>
         </div>
 
         <div class="info-row">
-          <span class="info-label">Người tạo</span>
-          <span class="info-value person">{{ p.creator }}</span>
+          <span class="info-label">ID Người tạo</span>
+          <span class="info-value person">{{ p.creatorId }}</span>
         </div>
 
         <div class="info-row">
-          <span class="info-label">Người thực hiện</span>
-          <span class="info-value person">{{ p.assignee }}</span>
+          <span class="info-label">ID Người thực hiện</span>
+          <span class="info-value person">{{ p.assigneeId }}</span>
         </div>
 
         <div class="info-row">
@@ -102,10 +103,17 @@
     <div class="info-card">
       <div class="card-header">
         <span class="header-icon">📎</span>
-        <h2 class="card-title">Tài liệu dự án</h2>
+        <h2 class="card-title">Tài liệu dự án (Charter)</h2>
       </div>
       
-      <div class="empty-docs">
+      <div class="documents-list" *ngIf="p.charterDocuments && p.charterDocuments.length > 0">
+        <div class="document-item" *ngFor="let doc of p.charterDocuments">
+          <span class="doc-icon">📄</span>
+          <a [href]="doc.fileUrl" target="_blank" class="doc-link">{{ doc.fileName }}</a>
+        </div>
+      </div>
+
+      <div class="empty-docs" *ngIf="!p.charterDocuments || p.charterDocuments.length === 0">
         Chưa có tài liệu đính kèm
       </div>
     </div>
