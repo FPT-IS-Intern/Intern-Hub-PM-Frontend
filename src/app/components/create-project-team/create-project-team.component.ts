@@ -95,7 +95,7 @@ export class CreateProjectTeamComponent implements OnInit {
     this.isLoadingLeaderUsers.set(true);
     this.userService.searchProjectMembers(pId, keyword).subscribe({
       next: (response: any) => {
-        this.leaderUsers.set(response.data || []);
+        this.leaderUsers.set(response.data?.items || []);
         this.isLoadingLeaderUsers.set(false);
       },
       error: (error: any) => {
@@ -113,7 +113,7 @@ export class CreateProjectTeamComponent implements OnInit {
     this.isLoadingMemberUsers.set(true);
     this.userService.searchProjectMembers(pId, keyword).subscribe({
       next: (response: any) => {
-        this.memberUsers.set(response.data || []);
+        this.memberUsers.set(response.data?.items || []);
         this.isLoadingMemberUsers.set(false);
       },
       error: (error: any) => {

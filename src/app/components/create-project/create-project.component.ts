@@ -112,7 +112,7 @@ export class CreateProjectModalComponent implements OnInit {
     this.isLoadingPmUsers.set(true);
     this.userService.getUsers(keyword).subscribe({
       next: (response: any) => {
-        this.pmUsers.set(response.data || []);
+        this.pmUsers.set(response.data?.items || []);
         this.isLoadingPmUsers.set(false);
       },
       error: (error: any) => {
@@ -127,7 +127,7 @@ export class CreateProjectModalComponent implements OnInit {
     this.isLoadingMemberUsers.set(true);
     this.userService.getUsers(keyword).subscribe({
       next: (response: any) => {
-        this.memberUsers.set(response.data || []);
+        this.memberUsers.set(response.data?.items || []);
         this.isLoadingMemberUsers.set(false);
       },
       error: (error: any) => {

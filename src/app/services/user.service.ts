@@ -38,7 +38,7 @@ export class UserService {
           data: {
             ...response.data,
             items: response.data.items.map((item: any) => ({
-              id: item.userId,
+              id: String(item.userId),
               username: item.fullName,
               email: item.email,
               avatarUrl: item.avatarUrl,
@@ -68,7 +68,7 @@ export class UserService {
           data: {
             ...response.data,
             items: response.data.items.map((item: any) => ({
-              id: item.userId,
+              id: String(item.userId),
               username: item.fullName,
               email: item.email,
               avatarUrl: item.avatarUrl,
