@@ -222,11 +222,12 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
   }
 
   protected goBack(): void {
+    const basePath = window.location.pathname.startsWith('/pm') ? '/pm' : '';
     const pid = this.projectId();
     if (pid) {
-      this.router.navigate(['/project-view', pid]);
+      this.router.navigate([`${basePath}/project-view`, pid]);
     } else {
-      this.router.navigate(['/pm']);
+      this.router.navigate([basePath || '/']);
     }
   }
 

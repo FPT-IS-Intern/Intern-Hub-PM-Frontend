@@ -191,7 +191,8 @@ export class ProjectViewModalComponent implements OnInit {
   }
 
   protected viewProject(task: any): void {
-    this.router.navigate(['/project-team-view', task.id]);
+    const basePath = window.location.pathname.startsWith('/pm') ? '/pm' : '';
+    this.router.navigate([`${basePath}/project-team-view`, task.id]);
   }
 
   protected editProject(task: any): void {
