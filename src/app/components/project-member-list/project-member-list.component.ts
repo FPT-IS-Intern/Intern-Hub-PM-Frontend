@@ -111,10 +111,32 @@ export class ProjectMemberListComponent implements OnInit {
   }
 
   handleSaveMember(result: AddMemberResult) {
-    console.log('Saved members:', result);
-    this.notificationService.showSuccess('Thành công', 'Tính năng phân công đang được phát triển');
-    this.isAddMemberModalOpen.set(false);
-    this.loadMembers();
+    const pId = this.projectId();
+    if (!pId || result.members.length === 0) {
+      this.closeAddMemberModal();
+      return;
+    }
+
+    const membersToSave = result.members.map(m => ({
+      userId: Number(m.id),
+      role: m.position.toUpperCase().replace(/\s+/g, '_')
+    }));
+
+    this.userService.addProjectMembers(pId, membersToSave).subscribe({
+      next: (res) => {
+        if (res.status.code === 'success') {
+          this.notificationService.showSuccess('Thành công', 'Đã thêm thành viên vào dự án');
+          this.closeAddMemberModal();
+          this.loadMembers();
+        } else {
+          this.notificationService.showError('Lỗi', res.status.message || 'Không thể lưu thành viên');
+        }
+      },
+      error: (err) => {
+        const msg = err.error?.status?.message || 'Có lỗi xảy ra khi lưu';
+        this.notificationService.showError('Lỗi', msg);
+      }
+    });
   }
 
   removeMember(memberId: string) {

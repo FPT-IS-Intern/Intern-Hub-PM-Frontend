@@ -79,4 +79,8 @@ export class UserService {
         }))
       );
   }
+
+  addProjectMembers(projectId: string, members: { userId: number, role: string }[]): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${environment.apiUrl}/pm/projects/${projectId}/users`, members);
+  }
 }
