@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CreateProjectModalComponent } from '../create-project/create-project.component';
-import { ProjectApiService } from '../../services/project.service';
+import { ProjectApiService, ProjectStatistics } from '../../services/project.service';
 import { ProjectListItem } from '../../models/project.types';
 
 // Mock types since services are missing
@@ -57,6 +57,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
   totalPages = signal(0);
   isLoadingProjects = signal(false);
 
+  // Global Stats
+  projectStats = signal<ProjectStatistics | null>(null);
+
   // Token balances
   tokenBalances = signal({ bt: '1000', rt: '500' });
   walletAddress = signal('0x742d35Cc6634C0532925a3b844Bc454e4438f44e');
@@ -93,17 +96,32 @@ export class ProjectComponent implements OnInit, OnDestroy {
   });
 
   stats = computed(() => {
+    const s = this.projectStats();
     return [
-      { label: 'TỔNG SỐ DỰ ÁN', value: this.totalElements(), icon: '📄', color: 'stat-total', type: 'static' },
-      { label: 'DỰ ÁN CHƯA BẮT ĐẦU', value: 8, icon: '💻', color: 'stat-ongoing', type: 'static' },
-      { label: 'DỰ ÁN ĐANG THỰC HIỆN', value: 8, icon: '💻', color: 'stat-ongoing', type: 'static' },
-      { label: 'DỰ ÁN HOÀN THÀNH', value: 10, icon: '✅', color: 'stat-completed', type: 'static' },
-      { label: 'DỰ ÁN QUÁ HẠN', value: 3, icon: '📋', color: 'stat-overdue', type: 'static' }
+      { label: 'TỔNG SỐ DỰ ÁN', value: s?.totalProjects ?? 0, icon: '📄', color: 'stat-total', type: 'static' },
+      { label: 'DỰ ÁN CHƯA BẮT ĐẦU', value: s?.notStartedProjects ?? 0, icon: '💻', color: 'stat-ongoing', type: 'static' },
+      { label: 'DỰ ÁN ĐANG THỰC HIỆN', value: s?.inProgressProjects ?? 0, icon: '💻', color: 'stat-ongoing', type: 'static' },
+      { label: 'DỰ ÁN HOÀN THÀNH', value: s?.completedProjects ?? 0, icon: '✅', color: 'stat-completed', type: 'static' },
+      { label: 'DỰ ÁN QUÁ HẠN', value: s?.overdueProjects ?? 0, icon: '📋', color: 'stat-overdue', type: 'static' }
     ];
   });
 
   ngOnInit() {
     this.loadProjects();
+    this.loadProjectStats();
+  }
+
+  loadProjectStats() {
+    this.projectService.getProjectStatistics()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          if (response.status?.code === 'success' || response.status === 200 || response.data) {
+            this.projectStats.set(response.data || response);
+          }
+        },
+        error: (err) => console.error('[ProjectComponent.loadProjectStats] Error:', err)
+      });
   }
 
   ngOnDestroy() {
@@ -114,7 +132,21 @@ export class ProjectComponent implements OnInit, OnDestroy {
   loadProjects() {
     this.isLoadingProjects.set(true);
 
-    this.projectService.getProjects(this.currentPage(), this.pageSize())
+    const filter: any = {};
+    if (this.searchTerm()) {
+      filter.name = this.searchTerm();
+    }
+    if (this.statusFilter() && this.statusFilter() !== 'Trạng thái') {
+      filter.status = this.mapDisplayToStatus(this.statusFilter());
+    }
+    if (this.dateFrom()) {
+      filter.startDate = new Date(this.dateFrom()).toISOString();
+    }
+    if (this.dateTo()) {
+      filter.endDate = new Date(this.dateTo()).toISOString();
+    }
+
+    this.projectService.getProjects(this.currentPage(), this.pageSize(), filter)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
@@ -179,6 +211,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
     return statusMap[status] || status;
   }
 
+  private mapDisplayToStatus(displayStatus: string): string {
+    const displayMap: Record<string, string> = {
+      'Chưa bắt đầu': 'NOT_STARTED',
+      'Đang thực hiện': 'IN_PROGRESS',
+      'Hoàn thành': 'COMPLETED',
+      'Quá hạn': 'OVERDUE'
+    };
+    return displayMap[displayStatus] || displayStatus;
+  }
+
   private formatDate(dateStr: string): string {
     if (!dateStr) return '';
     try {
@@ -193,7 +235,19 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSearch() {
+  onSearch(value?: string) {
+    if (value !== undefined) {
+      this.searchTerm.set(value);
+    }
+    this.currentPage.set(0);
+    this.loadProjects();
+  }
+
+  resetFilters() {
+    this.searchTerm.set('');
+    this.statusFilter.set('Trạng thái');
+    this.dateFrom.set('');
+    this.dateTo.set('');
     this.currentPage.set(0);
     this.loadProjects();
   }

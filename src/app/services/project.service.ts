@@ -16,6 +16,14 @@ export interface ProjectApiRequest {
   memberList: { userId: string; role: string }[];
 }
 
+export interface ProjectStatistics {
+  totalProjects: number;
+  notStartedProjects: number;
+  inProgressProjects: number;
+  completedProjects: number;
+  overdueProjects: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,12 +31,23 @@ export class ProjectApiService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/pm/projects`;
 
-  getProjects(page: number = 0, size: number = 10): Observable<ApiResponse<PaginatedData<ProjectListItem>>> {
-    const params = new HttpParams()
+  getProjects(page: number = 0, size: number = 10, filter?: any): Observable<ApiResponse<PaginatedData<ProjectListItem>>> {
+    let params = new HttpParams()
       .set('page', String(page))
       .set('size', String(size));
 
+    if (filter) {
+      if (filter.name) params = params.set('name', filter.name);
+      if (filter.status) params = params.set('status', filter.status);
+      if (filter.startDate) params = params.set('startDate', filter.startDate);
+      if (filter.endDate) params = params.set('endDate', filter.endDate);
+    }
+
     return this.http.get<ApiResponse<PaginatedData<ProjectListItem>>>(this.apiUrl, { params });
+  }
+
+  getProjectStatistics(): Observable<ApiResponse<ProjectStatistics>> {
+    return this.http.get<ApiResponse<ProjectStatistics>>(`${this.apiUrl}/statistics`);
   }
 
   createProject(request: ProjectApiRequest, files: File[]): Observable<ApiResponse<any>> {
