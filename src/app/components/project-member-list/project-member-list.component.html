@@ -52,11 +52,16 @@
           <td>{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
           <td class="fw-bold">{{ member.username }}</td>
           <td>{{ member.email }}</td>
-          <td>{{ member.role || 'BA' }}</td>
+          <td class="col-position">
+            <span class="role-badge" [ngClass]="getRoleClass(member.role)">
+              {{ getRoleLabel(member.role) }}
+            </span>
+          </td>
           <td class="text-center">{{ member.countProjectTeam || 0 }}</td>
           <td>
             <button class="delete-btn" (click)="removeMember(member.id)" title="Xóa thành viên">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 6h18"></path>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
@@ -123,4 +128,9 @@
       </div>
     </div>
   </div>
+
+  @if (isAddMemberModalOpen()) {
+  <app-add-member-modal initialProjectName="Dự Án Hiển Thị" (saved)="handleSaveMember($event)"
+    (closed)="closeAddMemberModal()"></app-add-member-modal>
+  }
 </div>

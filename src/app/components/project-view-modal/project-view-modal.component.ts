@@ -120,9 +120,13 @@ export class ProjectViewModalComponent implements OnInit {
 
   private mapStatus(status: string): any {
     switch (status) {
-      case 'NOT_STARTED': return 'Chờ duyệt';
+      case 'NOT_STARTED': return 'Chưa bắt đầu';
       case 'IN_PROGRESS': return 'Đang thực hiện';
-      case 'COMPLETED': return 'Đã duyệt';
+      case 'OVERDUE': return 'Trễ hạn';
+      case 'NEEDS_REVISION': return 'Cần chỉnh sửa';
+      case 'PENDING_REVIEW': return 'Chờ duyệt';
+      case 'COMPLETED': return 'Hoàn thành';
+      case 'CANCELED': return 'Đã hủy';
       default: return status;
     }
   }

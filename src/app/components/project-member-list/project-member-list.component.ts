@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User } from '../../services/user.service';
 import { NotificationService } from '../../services/notification.service';
+import { AddMemberModalComponent, AddMemberResult } from '../add-member-project/add-member-project';
 
 @Component({
   selector: 'app-project-member-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AddMemberModalComponent],
   templateUrl: './project-member-list.component.html',
   styleUrl: './project-member-list.component.scss'
 })
@@ -94,9 +95,21 @@ export class ProjectMemberListComponent implements OnInit {
     this.loadMembers();
   }
 
+  isAddMemberModalOpen = signal(false);
+
   openAddMemberModal() {
-    console.log('Open add member modal');
-    // Implementation for later
+    this.isAddMemberModalOpen.set(true);
+  }
+
+  closeAddMemberModal() {
+    this.isAddMemberModalOpen.set(false);
+  }
+
+  handleSaveMember(result: AddMemberResult) {
+    console.log('Saved members:', result);
+    this.notificationService.showSuccess('Thành công', 'Tính năng phân công đang được phát triển');
+    this.isAddMemberModalOpen.set(false);
+    this.loadMembers();
   }
 
   removeMember(memberId: string) {
@@ -105,6 +118,30 @@ export class ProjectMemberListComponent implements OnInit {
       console.log('Remove member:', memberId);
       // Giả sử có api xóa ở backend, hiện tại tôi chỉ log
       this.notificationService.showWarning('Thông báo', 'Tính năng xóa thành viên đang được phát triển');
+    }
+  }
+
+  getRoleLabel(role: string | undefined): string {
+    if (!role) return 'N/A';
+    switch (role.toUpperCase()) {
+      case 'PROJECT_MANAGER': return 'Project Manager';
+      case 'BUSINESS_ANALYST': return 'BA';
+      case 'DESIGNER': return 'Designer';
+      case 'DEVELOPER': return 'Developer';
+      case 'TESTER': return 'Tester';
+      default: return role;
+    }
+  }
+
+  getRoleClass(role: string | undefined): string {
+    if (!role) return 'role-default';
+    switch (role.toUpperCase()) {
+      case 'PROJECT_MANAGER': return 'role-pm';
+      case 'BUSINESS_ANALYST': return 'role-ba';
+      case 'DESIGNER': return 'role-designer';
+      case 'DEVELOPER': return 'role-dev';
+      case 'TESTER': return 'role-tester';
+      default: return 'role-default';
     }
   }
 }

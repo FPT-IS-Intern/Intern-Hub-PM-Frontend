@@ -1,0 +1,127 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-container" role="dialog" aria-modal="true">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">Thêm Thành Viên</h2>
+      <button class="close-btn" (click)="onClose()" aria-label="Đóng">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Chọn vị trí + Thêm thành viên -->
+      <div class="member-add-row">
+        <div class="select-wrapper position-select">
+          <label class="form-label">Chọn vị trí <span class="required">*</span></label>
+          <div class="custom-select" [class.open]="positionDropdownOpen" (click)="togglePositionDropdown()">
+            <span class="select-value" [class.placeholder]="!formData.selectedPosition">
+              {{ formData.selectedPosition || 'Vị trí' }}
+            </span>
+            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            <div class="dropdown-menu" *ngIf="positionDropdownOpen">
+              <div class="dropdown-item" *ngFor="let pos of positionOptions"
+                [class.selected]="formData.selectedPosition === pos" (click)="selectPosition(pos, $event)">{{ pos }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="select-wrapper member-select">
+          <label class="form-label">Tên thành viên <span class="required">*</span></label>
+          <div class="custom-select multi" [class.open]="memberDropdownOpen" (click)="toggleMemberDropdown()">
+            <span class="select-value" [class.placeholder]="selectedMemberNames.length === 0">
+              {{ selectedMemberNames.length > 0 ? selectedMemberNames.join(', ') : 'Chọn 1 hoặc nhiều thành viên' }}
+            </span>
+            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            <div class="dropdown-menu" *ngIf="memberDropdownOpen">
+              <div class="dropdown-item checkbox-item" *ngFor="let member of memberOptions"
+                (click)="toggleMemberSelection(member, $event)">
+                <span class="checkbox" [class.checked]="isMemberSelected(member.id)">
+                  <svg *ngIf="isMemberSelected(member.id)" xmlns="http://www.w3.org/2000/svg" width="11" height="11"
+                    viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+                {{ member.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-add-member" (click)="addMembers()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Thêm
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="member-table">
+          <thead>
+            <tr>
+              <th class="col-stt">STT</th>
+              <th class="col-name">Họ và tên</th>
+              <th class="col-position">Vị trí</th>
+              <th class="col-action"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="addedMembers.length === 0">
+              <td colspan="4" class="empty-state">
+                <div class="empty-inner">
+                  <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                  <p class="empty-text">Chưa có dữ liệu hiển thị</p>
+                </div>
+              </td>
+            </tr>
+            <tr *ngFor="let member of addedMembers; let i = index" class="table-row">
+              <td class="col-stt">{{ i + 1 }}</td>
+              <td class="col-name">{{ member.name }}</td>
+              <td class="col-position">{{ member.position }}</td>
+              <td class="col-action">
+                <button class="btn-remove" (click)="removeMember(i)" title="Xóa">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="onClose()">Hủy</button>
+      <button class="btn-save" (click)="onSave()">Lưu</button>
+    </div>
+
+  </div>
+</div>
