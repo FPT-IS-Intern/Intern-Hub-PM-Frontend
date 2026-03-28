@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, input, effect } from '@angular/core';
+import { Component, OnInit, signal, inject, input, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User } from '../../services/user.service';
@@ -14,6 +14,7 @@ import { AddMemberModalComponent, AddMemberResult } from '../add-member-project/
 })
 export class ProjectMemberListComponent implements OnInit {
   projectId = input.required<string>();
+  projectOwnerId = input<string | null>(null);
   
   protected readonly members = signal<User[]>([]);
   protected readonly isLoading = signal(false);
@@ -23,6 +24,10 @@ export class ProjectMemberListComponent implements OnInit {
   protected readonly pageSize = signal(10);
   protected readonly totalPages = signal(0);
   protected readonly totalItems = signal(0);
+  
+  protected readonly existingMemberIds = computed(() => 
+    this.members().map(m => m.id)
+  );
 
   private readonly userService = inject(UserService);
   private readonly notificationService = inject(NotificationService);

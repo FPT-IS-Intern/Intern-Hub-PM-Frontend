@@ -261,7 +261,7 @@
 
     @if (activeTab() === 'members') {
     <div class="tab-content">
-      <app-project-member-list [projectId]="projectId()!"></app-project-member-list>
+      <app-project-member-list [projectId]="projectId()!" [projectOwnerId]="projectOwnerId()"></app-project-member-list>
     </div>
     }
 

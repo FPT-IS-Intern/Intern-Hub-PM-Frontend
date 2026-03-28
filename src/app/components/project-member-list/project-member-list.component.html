@@ -130,7 +130,8 @@
   </div>
 
   @if (isAddMemberModalOpen()) {
-  <app-add-member-modal initialProjectName="Dự Án Hiển Thị" (saved)="handleSaveMember($event)"
+  <app-add-member-modal [initialProjectName]="'Dự án'" [projectId]="projectId()"
+    [existingMemberIds]="existingMemberIds()" [projectOwnerId]="projectOwnerId()" (saved)="handleSaveMember($event)"
     (closed)="closeAddMemberModal()"></app-add-member-modal>
   }
 </div>

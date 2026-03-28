@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, HostListener, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,7 +8,7 @@ export interface MemberOption {
 }
 
 export interface AddedMember {
-  id: number;
+  id: string;
   name: string;
   position: string;
 }
@@ -17,7 +17,7 @@ export interface AddMemberFormData {
   projectName: string;
   description: string;
   selectedPosition: string;
-  selectedMemberIds: number[];
+  selectedMemberIds: string[];
 }
 
 export interface AddMemberResult {
@@ -25,6 +25,9 @@ export interface AddMemberResult {
   description: string;
   members: AddedMember[];
 }
+
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { UserService, User } from '../../services/user.service';
 
 @Component({
   selector: 'app-add-member-modal',
@@ -36,6 +39,15 @@ export interface AddMemberResult {
 export class AddMemberModalComponent implements OnInit {
   /** Pre-fill project name from parent */
   @Input() initialProjectName: string = 'Dự Án A';
+
+  /** Project ID for context */
+  @Input() projectId: string = '';
+
+  /** List of existing member IDs to filter out */
+  @Input() existingMemberIds: string[] = [];
+
+  /** Project Owner ID to filter out */
+  @Input() projectOwnerId: string | null = null;
 
   /** Emit when user clicks Lưu */
   @Output() saved = new EventEmitter<AddMemberResult>();
@@ -56,13 +68,12 @@ export class AddMemberModalComponent implements OnInit {
     'Business Analyst',
   ];
 
-  memberOptions: MemberOption[] = [
-    { id: 1, name: 'Nguyễn Văn An' },
-    { id: 2, name: 'Trần Thị Bình' },
-    { id: 3, name: 'Lê Minh Cường' },
-    { id: 4, name: 'Phạm Thu Dung' },
-    { id: 5, name: 'Hoàng Đức Em' },
-  ];
+  memberOptions: { id: string, name: string }[] = [];
+  
+  private userService = inject(UserService);
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
+  isSearching = false;
 
   // ── Form Data ────────────────────────────────────────────────────────────────
   formData: AddMemberFormData = {
@@ -78,6 +89,56 @@ export class AddMemberModalComponent implements OnInit {
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.formData.projectName = this.initialProjectName;
+    
+    // Setup debounced search
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(keyword => {
+      this.performSearch(keyword);
+    });
+  }
+
+  isSubmitting() {
+    return false; // Will be handled if needed
+  }
+
+  onMemberSearchChange(event: Event): void {
+    const keyword = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(keyword);
+    if (!this.memberDropdownOpen && keyword.trim().length > 0) {
+      this.memberDropdownOpen = true;
+    }
+  }
+
+  private performSearch(keyword: string): void {
+    this.isSearching = true;
+    this.userService.getUsers(keyword, 0, 50).subscribe({
+      next: (res: any) => {
+        const users: any[] = res.data?.items || [];
+        this.memberOptions = users
+          .filter((user: any) => {
+            const isExisting = this.existingMemberIds.includes(String(user.id));
+            const isOwner = String(user.id) === String(this.projectOwnerId);
+            return !isExisting && !isOwner;
+          })
+          .map((user: any) => ({
+            id: String(user.id),
+            name: user.username
+          }));
+        this.isSearching = false;
+      },
+      error: (err: any) => {
+        console.error('Lỗi tìm kiếm thành viên:', err);
+        this.isSearching = false;
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ── Computed ─────────────────────────────────────────────────────────────────
@@ -104,7 +165,7 @@ export class AddMemberModalComponent implements OnInit {
     this.positionDropdownOpen = false;
   }
 
-  toggleMemberSelection(member: MemberOption, event: Event): void {
+  toggleMemberSelection(member: { id: string, name: string }, event: Event): void {
     event.stopPropagation();
     const idx = this.formData.selectedMemberIds.indexOf(member.id);
     if (idx === -1) {
@@ -114,7 +175,7 @@ export class AddMemberModalComponent implements OnInit {
     }
   }
 
-  isMemberSelected(id: number): boolean {
+  isMemberSelected(id: string): boolean {
     return this.formData.selectedMemberIds.includes(id);
   }
 

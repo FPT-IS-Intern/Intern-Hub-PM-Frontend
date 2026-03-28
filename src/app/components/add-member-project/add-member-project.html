@@ -16,7 +16,20 @@
     <!-- Body -->
     <div class="modal-body">
       <!-- Chọn vị trí + Thêm thành viên -->
+      <div class="form-group">
+        <label class="form-label">Tìm thành viên <span class="required">*</span></label>
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="Tìm kiếm thành viên..."
+            (input)="onMemberSearchChange($event)" [disabled]="isSubmitting()" />
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+      </div>
       <div class="member-add-row">
+
         <div class="select-wrapper position-select">
           <label class="form-label">Chọn vị trí <span class="required">*</span></label>
           <div class="custom-select" [class.open]="positionDropdownOpen" (click)="togglePositionDropdown()">
@@ -36,16 +49,23 @@
         </div>
 
         <div class="select-wrapper member-select">
+
           <label class="form-label">Tên thành viên <span class="required">*</span></label>
           <div class="custom-select multi" [class.open]="memberDropdownOpen" (click)="toggleMemberDropdown()">
             <span class="select-value" [class.placeholder]="selectedMemberNames.length === 0">
-              {{ selectedMemberNames.length > 0 ? selectedMemberNames.join(', ') : 'Chọn 1 hoặc nhiều thành viên' }}
+              {{ selectedMemberNames.length > 0 ? selectedMemberNames.join(', ') : 'Chọn thành viên' }}
             </span>
             <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
               fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9" />
             </svg>
             <div class="dropdown-menu" *ngIf="memberDropdownOpen">
+              <div class="dropdown-item" *ngIf="isSearching">
+                Đang tìm kiếm...
+              </div>
+              <div class="dropdown-item" *ngIf="!isSearching && memberOptions.length === 0">
+                Không tìm thấy thành viên phù hợp
+              </div>
               <div class="dropdown-item checkbox-item" *ngFor="let member of memberOptions"
                 (click)="toggleMemberSelection(member, $event)">
                 <span class="checkbox" [class.checked]="isMemberSelected(member.id)">

@@ -41,6 +41,7 @@ export class ProjectViewModalComponent implements OnInit {
   protected readonly bt = signal<number>(0);
   protected readonly rt = signal<number>(0);
   protected readonly dateRange = signal<string>('Chưa xác định');
+  protected readonly projectOwnerId = signal<string | null>(null);
 
   protected readonly activeTab = signal('tasks'); // tasks, my-tasks, members, history, details
 
@@ -82,6 +83,7 @@ export class ProjectViewModalComponent implements OnInit {
       this.bt.set(p.bt || 0);
       this.rt.set(p.rt || 0);
       this.dateRange.set(`${p.startDate || ''} - ${p.endDate || ''}`);
+      this.projectOwnerId.set(p.assigneeId || null);
     } else {
       this.projectName.set(`Dự án ${id}`);
     }
