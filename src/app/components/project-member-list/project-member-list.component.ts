@@ -118,7 +118,7 @@ export class ProjectMemberListComponent implements OnInit {
     }
 
     const membersToSave = result.members.map(m => ({
-      userId: Number(m.id),
+      userId: m.id,
       role: m.position.toUpperCase().replace(/\s+/g, '_')
     }));
 
