@@ -17,7 +17,7 @@ export interface AddMemberFormData {
   projectName: string;
   description: string;
   selectedPosition: string;
-  selectedMemberIds: string[];
+  selectedMemberId: string;
 }
 
 export interface AddMemberResult {
@@ -80,7 +80,7 @@ export class AddMemberModalComponent implements OnInit {
     projectName: '',
     description: '',
     selectedPosition: '',
-    selectedMemberIds: [],
+    selectedMemberId: '',
   };
 
   // ── Added Members Table ──────────────────────────────────────────────────────
@@ -98,6 +98,9 @@ export class AddMemberModalComponent implements OnInit {
     ).subscribe(keyword => {
       this.performSearch(keyword);
     });
+
+    // Load initial users
+    this.performSearch('');
   }
 
   isSubmitting() {
@@ -142,10 +145,8 @@ export class AddMemberModalComponent implements OnInit {
   }
 
   // ── Computed ─────────────────────────────────────────────────────────────────
-  get selectedMemberNames(): string[] {
-    return this.memberOptions
-      .filter(m => this.formData.selectedMemberIds.includes(m.id))
-      .map(m => m.name);
+  get selectedMemberName(): string {
+    return this.memberOptions.find(m => m.id === this.formData.selectedMemberId)?.name ?? '';
   }
 
   // ── Dropdown Toggles ─────────────────────────────────────────────────────────
@@ -165,18 +166,14 @@ export class AddMemberModalComponent implements OnInit {
     this.positionDropdownOpen = false;
   }
 
-  toggleMemberSelection(member: { id: string, name: string }, event: Event): void {
+  selectMember(member: { id: string, name: string }, event: Event): void {
     event.stopPropagation();
-    const idx = this.formData.selectedMemberIds.indexOf(member.id);
-    if (idx === -1) {
-      this.formData.selectedMemberIds = [...this.formData.selectedMemberIds, member.id];
-    } else {
-      this.formData.selectedMemberIds = this.formData.selectedMemberIds.filter(id => id !== member.id);
-    }
+    this.formData.selectedMemberId = member.id;
+    this.memberDropdownOpen = false;
   }
 
   isMemberSelected(id: string): boolean {
-    return this.formData.selectedMemberIds.includes(id);
+    return this.formData.selectedMemberId === id;
   }
 
   // ── Add Members to Table ──────────────────────────────────────────────────────
@@ -185,24 +182,31 @@ export class AddMemberModalComponent implements OnInit {
       alert('Vui lòng chọn vị trí!');
       return;
     }
-    if (this.formData.selectedMemberIds.length === 0) {
-      alert('Vui lòng chọn ít nhất 1 thành viên!');
+    if (!this.formData.selectedMemberId) {
+      alert('Vui lòng chọn thành viên!');
       return;
     }
 
-    const newEntries: AddedMember[] = this.formData.selectedMemberIds
-      .filter(id => !this.addedMembers.some(m => m.id === id && m.position === this.formData.selectedPosition))
-      .map(id => ({
-        id,
-        name: this.memberOptions.find(m => m.id === id)?.name ?? '',
+    const memberId = this.formData.selectedMemberId;
+    const isAlreadyAdded = this.addedMembers.some(m => m.id === memberId && m.position === this.formData.selectedPosition);
+    
+    if (isAlreadyAdded) {
+      alert('Thành viên này đã có trong danh sách với vị trí đã chọn!');
+      return;
+    }
+
+    const member = this.memberOptions.find(m => m.id === memberId);
+    if (member) {
+      const newEntry: AddedMember = {
+        id: member.id,
+        name: member.name,
         position: this.formData.selectedPosition,
-      }));
+      };
+      this.addedMembers = [...this.addedMembers, newEntry];
+    }
 
-    this.addedMembers = [...this.addedMembers, ...newEntries];
-
-    // Reset selections
-    this.formData.selectedPosition = '';
-    this.formData.selectedMemberIds = [];
+    // Reset member selection ONLY, keep position
+    this.formData.selectedMemberId = '';
   }
 
   // ── Remove from Table ─────────────────────────────────────────────────────────

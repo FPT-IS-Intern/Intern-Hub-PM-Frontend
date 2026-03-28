@@ -271,7 +271,7 @@ export class CreateProjectModalComponent implements OnInit {
     };
 
     this.teamMembers.set([...this.teamMembers(), newMember]);
-    this.formData.set({ ...data, position: '', member: '' });
+    this.formData.set({ ...data, member: '' });
   }
 
   protected handleRemoveMember(id: string): void {
