@@ -85,7 +85,7 @@
   <div class="main-content-card">
     <div class="tabs-nav">
       <button [class.active]="activeTab() === 'tasks'" (click)="setTab('tasks')">Danh sách dự án team</button>
-      <button [class.active]="activeTab() === 'my-tasks'" (click)="setTab('my-tasks')">Nhiệm vụ của tôi</button>
+      <button [class.active]="activeTab() === 'my-tasks'" (click)="setTab('my-tasks')">Dự án team của tôi</button>
       <button [class.active]="activeTab() === 'members'" (click)="setTab('members')">Danh sách thành viên</button>
       <!-- <button [class.active]="activeTab() === 'history'" (click)="setTab('history')">Lịch sử gia hạn</button> -->
       <button [class.active]="activeTab() === 'details'" (click)="setTab('details')">Chi tiết dự án</button>
@@ -97,9 +97,9 @@
       <!-- Filter Section -->
       <div class="filter-section">
         <div class="search-input-wrapper">
-          <input type="text" placeholder="Tìm kiếm tên hoặc email" [ngModel]="searchTerm()"
-            (ngModelChange)="searchTerm.set($event)">
-          <span class="search-icon">
+          <input type="text" placeholder="Tìm kiếm tên dự án team" [ngModel]="searchTerm()"
+            (ngModelChange)="onTeamSearch($event)">
+          <span class="search-icon" (click)="onTeamSearch()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -107,25 +107,29 @@
           </span>
         </div>
 
-        <select class="status-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <select class="status-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+          (change)="onTeamSearch()">
           <option value="Trạng thái">Trạng thái</option>
+          <option value="Chưa bắt đầu">Chưa bắt đầu</option>
           <option value="Đang thực hiện">Đang thực hiện</option>
           <option value="Hoàn thành">Hoàn thành</option>
-          <option value="Quá hạn">Quá hạn</option>
+          <option value="Trễ hạn">Trễ hạn</option>
+          <option value="Cần chỉnh sửa">Cần chỉnh sửa</option>
+          <option value="Chờ duyệt">Chờ duyệt</option>
         </select>
 
         <div class="date-filters">
           <div class="date-input-group">
             <label>Từ:</label>
-            <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)">
+            <input type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)" (change)="onTeamSearch()">
           </div>
           <div class="date-input-group">
             <label>Đến:</label>
-            <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)">
+            <input type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)" (change)="onTeamSearch()">
           </div>
         </div>
 
-        <button class="reset-btn">
+        <button class="reset-btn" (click)="resetFilters()" title="Làm mới bộ lọc">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 4v6h-6" />
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />

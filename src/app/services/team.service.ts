@@ -16,6 +16,14 @@ export interface TeamApiRequest {
   memberList: { userId: string; role: string }[];
 }
 
+export interface TeamStatistics {
+  totalTeams: number;
+  notStartedTeams: number;
+  inProgressTeams: number;
+  completedTeams: number;
+  overdueTeams: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -40,15 +48,27 @@ export class TeamApiService {
     return this.http.post<ApiResponse<any>>(this.apiUrl, formData);
   }
 
-  getTeams(projectId?: string, page: number = 0, size: number = 10): Observable<ApiResponse<PaginatedData<any>>> {
+  getTeams(page: number = 0, size: number = 10, filter?: any): Observable<ApiResponse<PaginatedData<any>>> {
     let params = new HttpParams()
       .set('page', String(page))
       .set('size', String(size));
 
-    if (projectId) {
-      params = params.set('projectId', projectId);
+    if (filter) {
+      if (filter.projectId) params = params.set('projectId', filter.projectId);
+      if (filter.name) params = params.set('name', filter.name);
+      if (filter.status) params = params.set('status', filter.status);
+      if (filter.startDate) params = params.set('startDate', filter.startDate);
+      if (filter.endDate) params = params.set('endDate', filter.endDate);
     }
 
     return this.http.get<ApiResponse<PaginatedData<any>>>(this.apiUrl, { params });
+  }
+
+  getTeamStatistics(projectId?: string): Observable<ApiResponse<TeamStatistics>> {
+    let params = new HttpParams();
+    if (projectId) {
+      params = params.set('projectId', projectId);
+    }
+    return this.http.get<ApiResponse<TeamStatistics>>(`${this.apiUrl}/statistics`, { params });
   }
 }

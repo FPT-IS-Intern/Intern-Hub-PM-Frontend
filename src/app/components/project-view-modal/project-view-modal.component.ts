@@ -6,7 +6,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectDetailComponent } from '../project-detail/project-detail.component';
 import { CreateProjectTeamComponent } from '../create-project-team/create-project-team.component';
 import { ProjectMemberListComponent } from '../project-member-list/project-member-list.component';
-import { TeamApiService } from '../../services/team.service';
+import { TeamApiService, TeamStatistics } from '../../services/team.service';
+import { Subject, takeUntil } from 'rxjs';
 
 interface Task {
   id: string;
@@ -33,6 +34,7 @@ export class ProjectViewModalComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private teamService = inject(TeamApiService);
+  private destroy$ = new Subject<void>();
 
   protected readonly projectId = signal<string | null>(null);
   protected readonly projectName = signal('Đang tải...');
@@ -48,6 +50,8 @@ export class ProjectViewModalComponent implements OnInit {
   protected readonly dateTo = signal('');
   protected readonly activeDropdownId = signal<string | null>(null);
 
+  protected readonly teamStats = signal<TeamStatistics | null>(null);
+
   protected readonly createTeamModalOpen = signal(false);
   protected readonly isLoading = signal(false);
   protected readonly currentPage = signal(0);
@@ -55,13 +59,13 @@ export class ProjectViewModalComponent implements OnInit {
   protected readonly totalItems = signal(0);
 
   protected readonly stats = computed(() => {
-    const allTasks = this.tasks();
+    const s = this.teamStats();
     return [
-      { label: 'TỔNG DỰ ÁN TEAM', value: allTasks.length, icon: '📄', color: 'stat-total', type: 'static' },
-      { label: 'DỰ ÁN TEAM CHƯA BẮT ĐẦU', value: allTasks.filter(t => t.status === 'Chờ duyệt').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
-      { label: 'DỰA ÁN TEAM ĐANG THỰC HIỆN', value: allTasks.filter(t => t.status === 'Đang thực hiện').length, icon: '💻', color: 'stat-ongoing', type: 'static' },
-      { label: 'DỰ ÁN TEAM HOÀN THÀNH', value: allTasks.filter(t => t.status === 'Đã duyệt').length, icon: '✅', color: 'stat-completed', type: 'static' },
-      { label: 'DỰ ÁN TEAM QUÁ HẠN', value: allTasks.filter(t => t.status === 'Từ chối').length, icon: '📋', color: 'stat-overdue', type: 'static' }
+      { label: 'TỔNG DỰ ÁN TEAM', value: s?.totalTeams ?? 0, icon: '📄', color: 'stat-total', type: 'static' },
+      { label: 'DỰ ÁN TEAM CHƯA BẮT ĐẦU', value: s?.notStartedTeams ?? 0, icon: '💻', color: 'stat-ongoing', type: 'static' },
+      { label: 'DỰ ÁN TEAM ĐANG THỰC HIỆN', value: s?.inProgressTeams ?? 0, icon: '💻', color: 'stat-ongoing', type: 'static' },
+      { label: 'DỰ ÁN TEAM HOÀN THÀNH', value: s?.completedTeams ?? 0, icon: '✅', color: 'stat-completed', type: 'static' },
+      { label: 'DỰ ÁN TEAM QUÁ HẠN', value: s?.overdueTeams ?? 0, icon: '📋', color: 'stat-overdue', type: 'static' }
     ];
   });
 
@@ -83,6 +87,21 @@ export class ProjectViewModalComponent implements OnInit {
     }
 
     this.loadTeams();
+    this.loadTeamStats();
+  }
+
+  protected loadTeamStats(): void {
+    const pid = this.projectId();
+    this.teamService.getTeamStatistics(pid || undefined)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.status?.code === 'success' || response.data) {
+            this.teamStats.set(response.data || (response as any));
+          }
+        },
+        error: (err) => console.error('Lỗi load thống kê team:', err)
+      });
   }
 
   protected loadTeams(): void {
@@ -90,7 +109,15 @@ export class ProjectViewModalComponent implements OnInit {
     if (!pid) return;
 
     this.isLoading.set(true);
-    this.teamService.getTeams(pid, this.currentPage(), this.pageSize()).subscribe({
+    const filter = {
+      projectId: pid,
+      name: this.searchTerm() || undefined,
+      status: this.statusFilter() !== 'Trạng thái' ? this.mapLabelToStatus(this.statusFilter()) : undefined,
+      startDate: this.dateFrom() || undefined,
+      endDate: this.dateTo() || undefined
+    };
+
+    this.teamService.getTeams(this.currentPage(), this.pageSize(), filter).subscribe({
       next: (response) => {
         if (response.status.code === 'success' && response.data) {
           const mappedTasks: Task[] = response.data.items.map((item: any) => ({
@@ -131,12 +158,29 @@ export class ProjectViewModalComponent implements OnInit {
     }
   }
 
+  private mapLabelToStatus(label: string): string | undefined {
+    switch (label) {
+      case 'Chưa bắt đầu': return 'NOT_STARTED';
+      case 'Đang thực hiện': return 'IN_PROGRESS';
+      case 'Trễ hạn': return 'OVERDUE';
+      case 'Cần chỉnh sửa': return 'NEEDS_REVISION';
+      case 'Chờ duyệt': return 'PENDING_REVIEW';
+      case 'Hoàn thành': return 'COMPLETED';
+      case 'Đã hủy': return 'CANCELED';
+      default: return undefined;
+    }
+  }
+
   protected goBack(): void {
     this.router.navigate(['/pm']);
   }
 
   protected setTab(tab: string): void {
     this.activeTab.set(tab);
+    if (tab === 'tasks') {
+      this.loadTeams();
+      this.loadTeamStats();
+    }
   }
 
   protected toggleDropdown(event: Event, id: string): void {
@@ -174,5 +218,19 @@ export class ProjectViewModalComponent implements OnInit {
     this.statusFilter.set('Trạng thái');
     this.dateFrom.set('');
     this.dateTo.set('');
+    this.loadTeams();
+  }
+
+  protected onTeamSearch(value?: string): void {
+    if (value !== undefined) {
+      this.searchTerm.set(value);
+    }
+    this.currentPage.set(0);
+    this.loadTeams();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
