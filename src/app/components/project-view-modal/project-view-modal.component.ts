@@ -191,7 +191,7 @@ export class ProjectViewModalComponent implements OnInit {
   }
 
   protected viewProject(task: any): void {
-    console.log('View task:', task);
+    this.router.navigate(['/project-team-view', task.id]);
   }
 
   protected editProject(task: any): void {
