@@ -68,7 +68,7 @@ export class AddMemberModalComponent implements OnInit {
     'Business Analyst',
   ];
 
-  memberOptions: { id: string, name: string }[] = [];
+  memberOptions: { id: string, name: string, email: string }[] = [];
   
   private userService = inject(UserService);
   private searchSubject = new Subject<string>();
@@ -120,15 +120,20 @@ export class AddMemberModalComponent implements OnInit {
     this.userService.getUsers(keyword, 0, 50).subscribe({
       next: (res: any) => {
         const users: any[] = res.data?.items || [];
+        const addedMemberIds = this.addedMembers.map(m => m.id);
+        
         this.memberOptions = users
           .filter((user: any) => {
-            const isExisting = this.existingMemberIds.includes(String(user.id));
-            const isOwner = String(user.id) === String(this.projectOwnerId);
-            return !isExisting && !isOwner;
+            const userIdStr = String(user.id);
+            const isExisting = this.existingMemberIds.includes(userIdStr);
+            const isOwner = userIdStr === String(this.projectOwnerId);
+            const isAlreadyAdded = addedMemberIds.includes(userIdStr);
+            return !isExisting && !isOwner && !isAlreadyAdded;
           })
           .map((user: any) => ({
             id: String(user.id),
-            name: user.username
+            name: user.username,
+            email: user.email || ''
           }));
         this.isSearching = false;
       },
@@ -166,7 +171,7 @@ export class AddMemberModalComponent implements OnInit {
     this.positionDropdownOpen = false;
   }
 
-  selectMember(member: { id: string, name: string }, event: Event): void {
+  selectMember(member: { id: string, name: string, email: string }, event: Event): void {
     event.stopPropagation();
     this.formData.selectedMemberId = member.id;
     this.memberDropdownOpen = false;

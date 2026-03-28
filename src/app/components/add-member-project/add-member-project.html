@@ -67,7 +67,7 @@
               </div>
               <div class="dropdown-item" *ngFor="let member of memberOptions"
                 [class.selected]="isMemberSelected(member.id)" (click)="selectMember(member, $event)">
-                {{ member.name }}
+                {{ member.name }} - {{ member.email }}
               </div>
             </div>
           </div>
