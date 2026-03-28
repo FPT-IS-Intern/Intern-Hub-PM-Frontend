@@ -120,15 +120,13 @@ export class AddMemberModalComponent implements OnInit {
     this.userService.getUsers(keyword, 0, 50).subscribe({
       next: (res: any) => {
         const users: any[] = res.data?.items || [];
-        const addedMemberIds = this.addedMembers.map(m => m.id);
         
         this.memberOptions = users
           .filter((user: any) => {
             const userIdStr = String(user.id);
             const isExisting = this.existingMemberIds.includes(userIdStr);
             const isOwner = userIdStr === String(this.projectOwnerId);
-            const isAlreadyAdded = addedMemberIds.includes(userIdStr);
-            return !isExisting && !isOwner && !isAlreadyAdded;
+            return !isExisting && !isOwner;
           })
           .map((user: any) => ({
             id: String(user.id),
@@ -142,6 +140,11 @@ export class AddMemberModalComponent implements OnInit {
         this.isSearching = false;
       }
     });
+  }
+
+  get filteredMemberOptions() {
+    const addedMemberIds = this.addedMembers.map(m => m.id);
+    return this.memberOptions.filter(m => !addedMemberIds.includes(m.id));
   }
 
   ngOnDestroy(): void {

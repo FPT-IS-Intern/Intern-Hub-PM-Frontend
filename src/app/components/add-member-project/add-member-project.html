@@ -62,10 +62,10 @@
               <div class="dropdown-item" *ngIf="isSearching">
                 Đang tìm kiếm...
               </div>
-              <div class="dropdown-item" *ngIf="!isSearching && memberOptions.length === 0">
+              <div class="dropdown-item" *ngIf="!isSearching && filteredMemberOptions.length === 0">
                 Không tìm thấy thành viên phù hợp
               </div>
-              <div class="dropdown-item" *ngFor="let member of memberOptions"
+              <div class="dropdown-item" *ngFor="let member of filteredMemberOptions"
                 [class.selected]="isMemberSelected(member.id)" (click)="selectMember(member, $event)">
                 {{ member.name }} - {{ member.email }}
               </div>
