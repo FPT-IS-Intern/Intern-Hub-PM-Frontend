@@ -1,8 +1,8 @@
 import { Component, OnInit, signal, inject, input, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService, User } from '../../services/user.service';
-import { NotificationService } from '../../services/notification.service';
+import { UserService, User } from '../../../services/user.service';
+import { NotificationService } from '../../../services/notification.service';
 import { AddMemberModalComponent, AddMemberResult } from '../add-member-project/add-member-project';
 
 @Component({
@@ -15,17 +15,17 @@ import { AddMemberModalComponent, AddMemberResult } from '../add-member-project/
 export class ProjectMemberListComponent implements OnInit {
   projectId = input.required<string>();
   projectOwnerId = input<string | null>(null);
-  
+
   protected readonly members = signal<User[]>([]);
   protected readonly isLoading = signal(false);
   protected searchTerm = '';
-  
+
   protected readonly currentPage = signal(1);
   protected readonly pageSize = signal(10);
   protected readonly totalPages = signal(0);
   protected readonly totalItems = signal(0);
-  
-  protected readonly existingMemberIds = computed(() => 
+
+  protected readonly existingMemberIds = computed(() =>
     this.members().map(m => m.id)
   );
 
@@ -51,9 +51,9 @@ export class ProjectMemberListComponent implements OnInit {
 
     this.isLoading.set(true);
     this.userService.searchProjectMembers(
-      id, 
-      this.searchTerm, 
-      this.currentPage() - 1, 
+      id,
+      this.searchTerm,
+      this.currentPage() - 1,
       this.pageSize()
     ).subscribe({
       next: (res) => {

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ProjectComponent } from './components/project/project.component';
+import { ProjectComponent } from './components/projects/project/project.component';
 
 export const routes: Routes = [
   {
@@ -10,12 +10,12 @@ export const routes: Routes = [
   {
     path: 'project-view/:id',
     loadComponent: () =>
-      import('./components/project-view-modal/project-view-modal.component').then((m) => m.ProjectViewModalComponent),
+      import('./components/projects/project-view-modal/project-view-modal.component').then((m) => m.ProjectViewModalComponent),
   },
   {
     path: 'project-team-view/:id',
     loadComponent: () =>
-      import('./components/project-team-view-modal/project-team-view-modal.component').then((m) => m.ProjectTeamViewModalComponent),
+      import('./components/project-teams/project-team-view-modal/project-team-view-modal.component').then((m) => m.ProjectTeamViewModalComponent),
   },
 ];
 

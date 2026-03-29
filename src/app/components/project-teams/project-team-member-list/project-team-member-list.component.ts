@@ -1,7 +1,7 @@
 import { Component, input, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TaskApiService } from '../../services/task.service';
+import { TaskApiService } from '../../../services/task.service';
 
 export interface TeamMember {
   id: number;

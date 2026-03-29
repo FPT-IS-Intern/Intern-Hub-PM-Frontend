@@ -27,7 +27,7 @@ export interface AddMemberResult {
 }
 
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import { UserService, User } from '../../services/user.service';
+import { UserService, User } from '../../../services/user.service';
 
 @Component({
   selector: 'app-add-member-modal',

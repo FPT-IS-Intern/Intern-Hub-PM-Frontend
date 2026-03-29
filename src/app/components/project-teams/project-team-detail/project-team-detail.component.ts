@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TeamApiService, TeamDetail, TeamCharterDocument } from '../../services/team.service';
+import { TeamApiService, TeamDetail, TeamCharterDocument } from '../../../services/team.service';
 
 @Component({
   selector: 'app-project-team-detail',
@@ -40,11 +40,11 @@ export class ProjectTeamDetailComponent implements OnInit {
 
   protected getStatusClass(status: string | null | undefined): string {
     switch (status) {
-      case 'NOT_STARTED':  return 'not_started';
-      case 'IN_PROGRESS':  return 'in_progress';
-      case 'COMPLETED':    return 'completed';
-      case 'OVERDUE':      return 'overdue';
-      default:             return '';
+      case 'NOT_STARTED': return 'not_started';
+      case 'IN_PROGRESS': return 'in_progress';
+      case 'COMPLETED': return 'completed';
+      case 'OVERDUE': return 'overdue';
+      default: return '';
     }
   }
 
@@ -52,8 +52,8 @@ export class ProjectTeamDetailComponent implements OnInit {
     const map: Record<string, string> = {
       'NOT_STARTED': 'Chưa bắt đầu',
       'IN_PROGRESS': 'Đang thực hiện',
-      'COMPLETED':   'Hoàn thành',
-      'OVERDUE':     'Trễ hạn',
+      'COMPLETED': 'Hoàn thành',
+      'OVERDUE': 'Trễ hạn',
     };
     return status ? (map[status] ?? status) : '—';
   }
@@ -61,7 +61,7 @@ export class ProjectTeamDetailComponent implements OnInit {
   protected getFileIcon(fileName: string): string {
     const ext = fileName.split('.').pop()?.toLowerCase();
     switch (ext) {
-      case 'pdf':  return 'pdf';
+      case 'pdf': return 'pdf';
       case 'doc':
       case 'docx': return 'word';
       case 'xls':
@@ -71,8 +71,8 @@ export class ProjectTeamDetailComponent implements OnInit {
       case 'png':
       case 'jpg':
       case 'jpeg':
-      case 'gif':  return 'image';
-      default:     return 'file';
+      case 'gif': return 'image';
+      default: return 'file';
     }
   }
 

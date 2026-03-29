@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { TaskApiService, TaskResponse, TaskStatistics } from '../../services/task.service';
-import { TeamApiService } from '../../services/team.service';
-import { NotificationService } from '../../services/notification.service';
+import { TaskApiService, TaskResponse, TaskStatistics } from '../../../services/task.service';
+import { TeamApiService } from '../../../services/team.service';
+import { NotificationService } from '../../../services/notification.service';
 import { ProjectTeamDetailComponent } from '../project-team-detail/project-team-detail.component';
 
 interface TaskTableItem {
@@ -247,29 +247,29 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
 
   protected submitTaskAction(task: TaskTableItem): void {
     this.taskService.submitTask(task.id, 'http://example.com/result').subscribe(res => {
-        if (res.status.code === 'success') {
-            this.notificationService.showSuccess('Thành công', 'Nộp bài thành công!');
-            this.loadTasks();
-        }
+      if (res.status.code === 'success') {
+        this.notificationService.showSuccess('Thành công', 'Nộp bài thành công!');
+        this.loadTasks();
+      }
     });
   }
 
   protected approveTaskAction(task: TaskTableItem): void {
     this.taskService.approveTask(task.id, 'Excellent work!').subscribe(res => {
-        if (res.status.code === 'success') {
-            this.notificationService.showSuccess('Thành công', 'Đã duyệt task thành công!');
-            this.loadTasks();
-            this.loadTaskStats();
-        }
+      if (res.status.code === 'success') {
+        this.notificationService.showSuccess('Thành công', 'Đã duyệt task thành công!');
+        this.loadTasks();
+        this.loadTaskStats();
+      }
     });
   }
 
   protected refuseTaskAction(task: TaskTableItem): void {
     this.taskService.refuseTask(task.id, 'Please fix the formatting.').subscribe(res => {
-        if (res.status.code === 'success') {
-            this.notificationService.showWarning('Thông tin', 'Đã yêu cầu chỉnh sửa lại.');
-            this.loadTasks();
-        }
+      if (res.status.code === 'success') {
+        this.notificationService.showWarning('Thông tin', 'Đã yêu cầu chỉnh sửa lại.');
+        this.loadTasks();
+      }
     });
   }
 

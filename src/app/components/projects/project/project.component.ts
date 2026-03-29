@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { CreateProjectModalComponent } from '../create-project/create-project.component';
-import { ProjectApiService, ProjectStatistics } from '../../services/project.service';
-import { ProjectListItem } from '../../models/project.types';
+import { ProjectApiService, ProjectStatistics } from '../../../services/project.service';
+import { ProjectListItem } from '../../../models/project.types';
 
 // Mock types since services are missing
 export interface ProjectDisplay {

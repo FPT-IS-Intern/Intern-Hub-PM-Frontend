@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ProjectDetailService } from '../../services/project-detail.service';
-import { ProjectDetail, CharterDocument } from '../../models/project-detail.types';
+import { ProjectDetailService } from '../../../services/project-detail.service';
+import { ProjectDetail, CharterDocument } from '../../../models/project-detail.types';
 import { CommonModule } from '@angular/common';
 import { Input } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
@@ -15,7 +15,7 @@ import { ChangeDetectorRef } from '@angular/core';
 export class ProjectDetailComponent implements OnInit {
   @Input() projectId!: string;
   project: ProjectDetail | null = null;
-  
+
   private projectService = inject(ProjectDetailService);
   private cdr = inject(ChangeDetectorRef);
 

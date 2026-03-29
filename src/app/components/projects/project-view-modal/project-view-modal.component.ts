@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ProjectDetailComponent } from '../project-detail/project-detail.component';
-import { CreateProjectTeamComponent } from '../create-project-team/create-project-team.component';
+import { CreateProjectTeamComponent } from '../../project-teams/create-project-team/create-project-team.component';
 import { ProjectMemberListComponent } from '../project-member-list/project-member-list.component';
-import { TeamApiService, TeamStatistics } from '../../services/team.service';
+import { TeamApiService, TeamStatistics } from '../../../services/team.service';
 import { Subject, takeUntil } from 'rxjs';
 
 interface Task {

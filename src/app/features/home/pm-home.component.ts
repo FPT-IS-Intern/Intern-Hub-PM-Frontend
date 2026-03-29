@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ProjectComponent } from '../../components/project/project.component';
+import { ProjectComponent } from '../../components/projects/project/project.component';
 
 @Component({
   selector: 'app-pm-home',
@@ -10,4 +10,4 @@ import { ProjectComponent } from '../../components/project/project.component';
   `,
   styles: []
 })
-export class PmHomeComponent {}
+export class PmHomeComponent { }

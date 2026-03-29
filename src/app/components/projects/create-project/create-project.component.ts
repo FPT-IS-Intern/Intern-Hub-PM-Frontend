@@ -1,11 +1,11 @@
 import { Component, effect, input, output, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProjectService } from '../../services/project-contract.service';
-import { UserService, User } from '../../services/user.service';
-import { ProjectApiService, ProjectApiRequest } from '../../services/project.service';
-import { NotificationService } from '../../services/notification.service';
-import { CreateProjectParams, ProjectFormData, TeamMember } from '../../models/project.types';
+import { ProjectService } from '../../../services/project-contract.service';
+import { UserService, User } from '../../../services/user.service';
+import { ProjectApiService, ProjectApiRequest } from '../../../services/project.service';
+import { NotificationService } from '../../../services/notification.service';
+import { CreateProjectParams, ProjectFormData, TeamMember } from '../../../models/project.types';
 
 type ProjectFormErrors = Partial<Record<keyof ProjectFormData, string>>;
 

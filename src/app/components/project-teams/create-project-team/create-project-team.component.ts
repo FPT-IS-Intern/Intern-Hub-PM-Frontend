@@ -1,10 +1,10 @@
 import { Component, effect, input, output, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService, User } from '../../services/user.service';
-import { NotificationService } from '../../services/notification.service';
-import { TeamApiService, TeamApiRequest } from '../../services/team.service';
-import { ProjectFormData, TeamMember } from '../../models/project.types';
+import { UserService, User } from '../../../services/user.service';
+import { NotificationService } from '../../../services/notification.service';
+import { TeamApiService, TeamApiRequest } from '../../../services/team.service';
+import { ProjectFormData, TeamMember } from '../../../models/project.types';
 
 type TeamFormErrors = Partial<Record<keyof ProjectFormData, string>>;
 
