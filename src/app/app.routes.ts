@@ -17,5 +17,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/project-teams/project-team-view-modal/project-team-view-modal.component').then((m) => m.ProjectTeamViewModalComponent),
   },
+  {
+    path: 'task-view/:id',
+    loadComponent: () =>
+      import('./components/teams/task-detail-modal/task-detail.component').then((m) => m.TaskDetailComponent),
+  },
 ];
 

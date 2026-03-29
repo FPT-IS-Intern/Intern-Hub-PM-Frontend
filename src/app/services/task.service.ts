@@ -4,6 +4,12 @@ import { Observable } from 'rxjs';
 import { ApiResponse, PaginatedData } from '../models/common.types';
 import { environment } from '../../environments/environment';
 
+export interface TaskDocument {
+  fileName: string;
+  fileUrl: string;
+  createdAt?: string;
+}
+
 export interface TaskResponse {
   id: number;
   projectId: number;
@@ -18,6 +24,9 @@ export interface TaskResponse {
   endDate?: string;
   createdAt: string;
   updatedAt: string;
+  note?: string;
+  charterDocuments?: TaskDocument[];
+  submissionDocuments?: TaskDocument[];
 }
 
 export interface TaskStatistics {
@@ -56,13 +65,24 @@ export class TaskApiService {
     return this.http.get<ApiResponse<TaskStatistics>>(`${this.apiUrl}/teams/${teamId}/tasks/statistics`);
   }
 
-  submitTask(taskId: number, deliverableLink?: string, files?: File[]): Observable<ApiResponse<TaskResponse>> {
+  getTask(taskId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/tasks/${taskId}`);
+  }
+
+  submitTask(taskId: number, deliverableDescription?: string, deliverableLink?: string, files?: File[]): Observable<any> {
     const formData = new FormData();
-    if (deliverableLink) formData.append('deliverableLink', deliverableLink);
-    if (files && files.length > 0) {
-      files.forEach(f => formData.append('files', f, f.name));
+
+    // Gửi request dưới dạng JSON Blob — Spring @RequestPart("request") deserialize thành TaskSubmitRequest
+    if (deliverableDescription || deliverableLink) {
+      const requestBlob = new Blob([JSON.stringify({
+        deliverableDescription: deliverableDescription ?? null,
+        deliverableLink: deliverableLink ?? null,
+      })], { type: 'application/json' });
+      formData.append('request', requestBlob);
     }
-    return this.http.post<ApiResponse<TaskResponse>>(`${this.apiUrl}/tasks/${taskId}/submit`, formData);
+
+    files?.forEach(f => formData.append('files', f, f.name));
+    return this.http.post<any>(`${this.apiUrl}/tasks/${taskId}/submit`, formData);
   }
 
   approveTask(taskId: number, reviewComment?: string): Observable<ApiResponse<TaskResponse>> {

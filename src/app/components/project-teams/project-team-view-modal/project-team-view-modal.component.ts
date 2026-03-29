@@ -236,7 +236,7 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
 
   // Task Actions
   protected viewTask(task: TaskTableItem): void {
-    console.log('View task:', task);
+    this.router.navigate(['/task-view', task.id]);
   }
 
   protected editTask(task: TaskTableItem): void {
@@ -248,12 +248,8 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
   }
 
   protected submitTaskAction(task: TaskTableItem): void {
-    this.taskService.submitTask(task.id, 'http://example.com/result').subscribe(res => {
-      if (res.status.code === 'success') {
-        this.notificationService.showSuccess('Thành công', 'Nộp bài thành công!');
-        this.loadTasks();
-      }
-    });
+    // Chuyển đến trang chi tiết task để nộp bài
+    this.router.navigate(['/task-view', task.id]);
   }
 
   protected approveTaskAction(task: TaskTableItem): void {

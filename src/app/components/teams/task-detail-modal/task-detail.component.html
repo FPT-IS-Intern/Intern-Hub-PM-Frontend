@@ -1,0 +1,222 @@
+<div class="task-page">
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="!team">
+    <div class="spinner"></div>
+    <p>Đang tải chi tiết...</p>
+  </div>
+
+  <ng-container *ngIf="team as t">
+
+    <!-- ── Top bar ──────────────────────────────────────── -->
+    <div class="top-bar">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Quay lại
+      </button>
+      <h1>Chi tiết nhiệm vụ</h1>
+    </div>
+
+    <div class="page-body">
+
+      <!-- ── Thông tin task ─────────────────────────────── -->
+      <div class="info-card">
+        <div class="card-header">
+          <span class="header-icon">📋</span>
+          <h2 class="card-title">Thông tin nhiệm vụ</h2>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">Tên Task</span>
+            <span class="info-value name">{{ t.name }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Mã Task (UUID)</span>
+            <span class="info-value mono">{{ t.taskUUID }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Trạng thái</span>
+            <div class="info-value">
+              <span class="status-badge" [class]="getStatusClass(t.status)">
+                <span class="dot"></span>
+                {{ mapStatus(t.status) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Bắt đầu</span>
+            <span class="info-value">{{ formatDateTimeShort(t.startDate) }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Kết thúc</span>
+            <span class="info-value">{{ formatDateTimeShort(t.endDate) }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Mô tả nhiệm vụ</span>
+            <span class="info-value description">{{ t.description || 'Chưa có mô tả' }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Thưởng (RT)</span>
+            <span class="info-value points rt">{{ t.rewardToken | number }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Người nhận task</span>
+            <span class="info-value person">{{ t.assigneeId }}</span>
+          </div>
+
+          <div class="info-row" *ngIf="t.note">
+            <span class="info-label">Ghi chú</span>
+            <span class="info-value">{{ t.note }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tài liệu hướng dẫn (Charter) ───────────────── -->
+      <div class="info-card">
+        <div class="card-header">
+          <span class="header-icon">📎</span>
+          <h2 class="card-title">Tài liệu nhiệm vụ</h2>
+        </div>
+
+        <div class="documents-grid" *ngIf="t.charterDocuments && t.charterDocuments.length > 0">
+          <div class="document-card" *ngFor="let doc of t.charterDocuments">
+            <div class="file-icon-wrapper" [attr.data-type]="getFileExtension(doc.fileName)">
+              <div class="file-icon" [ngClass]="getFileIcon(doc.fileName)"></div>
+              <div class="file-type-label">{{ getFileExtension(doc.fileName) }}</div>
+            </div>
+            <div class="document-info">
+              <span class="file-name" [title]="doc.fileName">{{ doc.fileName }}</span>
+              <div class="file-meta">{{ doc.createdAt ? (doc.createdAt | date:'dd/MM/yyyy') : 'N/A' }}</div>
+            </div>
+            <button class="download-btn" (click)="downloadDocument(doc)" title="Tải xuống">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-docs" *ngIf="!t.charterDocuments || t.charterDocuments.length === 0">
+          Chưa có tài liệu hướng dẫn
+        </div>
+      </div>
+
+      <!-- ── Bài Nộp ──────────────────────────────────────── -->
+      <div class="info-card submit-card">
+        <div class="card-header">
+          <span class="header-icon">📤</span>
+          <h2 class="card-title">Bài Nộp</h2>
+        </div>
+
+        <!-- Đã nộp / đang chờ duyệt -->
+        <div class="submitted-note" *ngIf="t.status === 'PENDING_REVIEW'">
+          Bài đã được nộp, đang chờ người tạo task duyệt.
+        </div>
+
+        <!-- Đã hoàn thành -->
+        <div class="submitted-note" *ngIf="t.status === 'COMPLETED'"
+          style="background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;">
+          Task đã hoàn thành và được duyệt!
+        </div>
+
+        <!-- File bài nộp đã upload (submissionDocuments) -->
+        <div *ngIf="t.submissionDocuments && t.submissionDocuments.length > 0" style="padding:1rem 1.25rem 0">
+          <div class="attachment-list">
+            <div class="attachment-item" *ngFor="let doc of t.submissionDocuments">
+              <div class="file-info">
+                <span class="file-badge">{{ getFileExtension(doc.fileName) }}</span>
+                <div>
+                  <div style="font-weight:600">{{ doc.fileName }}</div>
+                  <div class="file-meta">{{ doc.createdAt ? (doc.createdAt | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</div>
+                </div>
+              </div>
+              <button class="remove-btn" (click)="downloadDocument(doc)" title="Tải xuống">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form nộp bài — chỉ hiển thị khi có thể nộp -->
+        <div class="submit-body" *ngIf="canSubmit()">
+
+          <!-- Upload file -->
+          <div class="upload-area" (click)="fileInput.click()">
+            <input #fileInput type="file" class="hidden" multiple (change)="onFileChange($event)"
+              [disabled]="isSubmitting()">
+            <div class="upload-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div class="upload-btn">Tải lên</div>
+            <div class="upload-hint">Dung lượng tối đa 10MB (.docx, .pdf, .png,...)</div>
+          </div>
+
+          <!-- File list -->
+          <div class="attachment-list" *ngIf="submitForm().files.length > 0">
+            <div class="attachment-item" *ngFor="let f of submitForm().files; let i = index">
+              <div class="file-info">
+                <span class="file-badge">{{ getFileExtension(f.name) }}</span>
+                <div>
+                  <div style="font-weight:600">{{ f.name }}</div>
+                  <div class="file-meta">{{ (f.size / 1024).toFixed(1) }} KB</div>
+                </div>
+              </div>
+              <button type="button" class="remove-btn" (click)="removeFile(i)" [disabled]="isSubmitting()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mô tả kết quả -->
+          <div class="form-group">
+            <label>Mô tả kết quả</label>
+            <textarea placeholder="Nhập mô tả kết quả công việc của bạn..."
+              [ngModel]="submitForm().deliverableDescription"
+              (ngModelChange)="patchSubmit('deliverableDescription', $event)" [disabled]="isSubmitting()"></textarea>
+          </div>
+
+          <!-- Link kết quả -->
+          <div class="form-group">
+            <label>Link kết quả (tùy chọn)</label>
+            <input type="url" placeholder="https://..." [ngModel]="submitForm().deliverableLink"
+              (ngModelChange)="patchSubmit('deliverableLink', $event)" [disabled]="isSubmitting()" />
+          </div>
+
+          <div class="submit-footer">
+            <button type="button" class="btn-submit" (click)="handleSubmit()" [disabled]="isSubmitting()">
+              {{ isSubmitting() ? 'Đang nộp...' : 'Nộp bài' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </ng-container>
+
+</div>
