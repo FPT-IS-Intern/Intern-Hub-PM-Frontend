@@ -1,0 +1,60 @@
+<div class="team-member-list-container">
+  <!-- Filters/Actions -->
+  <div class="filter-section">
+    <div class="search-input-wrapper">
+      <input type="text" placeholder="Tìm kiếm tên hoặc email" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+      <span class="search-icon" (click)="onSearch()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </span>
+    </div>
+
+    <button class="refresh-btn" (click)="onRefresh()" title="Làm mới">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 4v6h-6" />
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Table Section -->
+  <div class="table-wrapper">
+    <table class="member-table">
+      <thead>
+        <tr>
+          <th width="80">STT</th>
+          <th>Họ và Tên</th>
+          <th>Email</th>
+          <th class="text-center">Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (isLoading()) {
+        <tr>
+          <td colspan="4" class="text-center py-8">Đang tải danh sách thành viên...</td>
+        </tr>
+        } @else {
+        @for (member of members(); track member.id; let i = $index) {
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td class="fw-bold">{{ member.fullName }}</td>
+          <td>{{ member.email }}</td>
+          <td class="text-center">
+            <span class="status-badge" [ngClass]="getStatusClass(member.status)">
+              {{ getStatusLabel(member.status) }}
+            </span>
+          </td>
+        </tr>
+        }
+        @if (members().length === 0) {
+        <tr>
+          <td colspan="4" class="text-center py-8">Chưa có thành viên nào trong team.</td>
+        </tr>
+        }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

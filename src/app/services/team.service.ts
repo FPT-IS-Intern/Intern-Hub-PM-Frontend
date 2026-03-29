@@ -24,6 +24,38 @@ export interface TeamStatistics {
   overdueTeams: number;
 }
 
+// ── Team Detail model (matches BE /pm/teams/{teamId} response) ────────────────
+export interface TeamCharterDocument {
+  id: number;
+  fileName: string;
+  fileUrl: string;
+  createdAt: number;
+}
+
+export interface TeamDetail {
+  id: number;
+  teamUUID: string;
+  name: string;
+  description: string;
+  note: string | null;
+  status: string;
+  budgetToken: number;
+  rewardToken: number;
+  creatorId: number;
+  assigneeId: number;
+  projectId: number;
+  deliverableDescription: string | null;
+  deliverableLink: string | null;
+  completionComment: string | null;
+  startDate: string;
+  endDate: string;
+  charterDocuments: TeamCharterDocument[];
+  leadName: string;
+  memberCount: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -33,18 +65,11 @@ export class TeamApiService {
 
   createTeam(request: TeamApiRequest, files: File[]): Observable<ApiResponse<any>> {
     const formData = new FormData();
-
-    // Create a Blob for the JSON part to specify application/json content type
     const requestBlob = new Blob([JSON.stringify(request)], { type: 'application/json' });
     formData.append('request', requestBlob);
-
-    // Append files
     if (files && files.length > 0) {
-      files.forEach(file => {
-        formData.append('files', file, file.name);
-      });
+      files.forEach(file => formData.append('files', file, file.name));
     }
-
     return this.http.post<ApiResponse<any>>(this.apiUrl, formData);
   }
 
@@ -64,11 +89,14 @@ export class TeamApiService {
     return this.http.get<ApiResponse<PaginatedData<any>>>(this.apiUrl, { params });
   }
 
+  /** GET /pm/teams/{teamId} — Chi tiết dự án team */
+  getTeamById(teamId: string | number): Observable<ApiResponse<TeamDetail>> {
+    return this.http.get<ApiResponse<TeamDetail>>(`${this.apiUrl}/${teamId}`);
+  }
+
   getTeamStatistics(projectId?: string): Observable<ApiResponse<TeamStatistics>> {
     let params = new HttpParams();
-    if (projectId) {
-      params = params.set('projectId', projectId);
-    }
+    if (projectId) params = params.set('projectId', projectId);
     return this.http.get<ApiResponse<TeamStatistics>>(`${this.apiUrl}/statistics`, { params });
   }
 }

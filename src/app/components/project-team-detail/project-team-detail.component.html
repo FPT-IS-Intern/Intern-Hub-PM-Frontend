@@ -1,0 +1,142 @@
+<div class="team-detail-container">
+  <div class="loading-state" *ngIf="!team">
+    <div class="spinner"></div>
+    <p>Đang tải chi tiết team...</p>
+  </div>
+
+  <div class="detail-content" *ngIf="team as t">
+
+    <!-- ── Thông tin dự án team ─────────────────────────────── -->
+    <div class="info-card">
+      <div class="card-header">
+        <span class="header-icon">👥</span>
+        <h2 class="card-title">Thông tin dự án team</h2>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="info-label">Tên Team</span>
+          <span class="info-value name">{{ t.name }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Mã Team (UUID)</span>
+          <span class="info-value mono">{{ t.teamUUID }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Trạng thái</span>
+          <div class="info-value">
+            <span class="status-badge" [class]="getStatusClass(t.status)">
+              <span class="dot"></span>
+              {{ mapStatus(t.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ngày bắt đầu</span>
+          <span class="info-value">{{ formatDateTimeShort(t.startDate) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ngày kết thúc</span>
+          <span class="info-value">{{ formatDateTimeShort(t.endDate) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Mô tả</span>
+          <span class="info-value description">{{ t.description || 'Chưa có mô tả' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ngân sách (BT)</span>
+          <span class="info-value points bt">{{ t.budgetToken | number }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Thưởng (RT)</span>
+          <span class="info-value points rt">{{ t.rewardToken | number }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Trưởng nhóm</span>
+          <span class="info-value person">{{ t.leadName || 'Chưa có' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Số thành viên</span>
+          <span class="info-value">{{ t.memberCount }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Mô tả kết quả</span>
+          <span class="info-value">{{ t.deliverableDescription || 'Chưa có' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Link kết quả</span>
+          <a *ngIf="t.deliverableLink" [href]="t.deliverableLink" class="info-value link" target="_blank">
+            {{ t.deliverableLink }}
+          </a>
+          <span *ngIf="!t.deliverableLink" class="info-value">Chưa có</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ghi chú</span>
+          <span class="info-value">{{ t.note || 'Không có' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Nhận xét hoàn thành</span>
+          <span class="info-value">{{ t.completionComment || 'Chưa có' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ngày tạo</span>
+          <span class="info-value mono secondary">{{ formatDateTimeShort(t.createdAt) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Cập nhật lần cuối</span>
+          <span class="info-value mono secondary">{{ formatDateTimeShort(t.updatedAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tài liệu dự án team ──────────────────────────────── -->
+    <div class="info-card">
+      <div class="card-header">
+        <span class="header-icon">📎</span>
+        <h2 class="card-title">Tài liệu dự án team (Charter)</h2>
+      </div>
+
+      <div class="documents-grid" *ngIf="t.charterDocuments && t.charterDocuments.length > 0">
+        <div class="document-card" *ngFor="let doc of t.charterDocuments">
+          <div class="file-icon-wrapper" [attr.data-type]="getFileExtension(doc.fileName)">
+            <div class="file-icon" [ngClass]="getFileIcon(doc.fileName)"></div>
+            <div class="file-type-label">{{ getFileExtension(doc.fileName) }}</div>
+          </div>
+          <div class="document-info">
+            <span class="file-name" [title]="doc.fileName">{{ doc.fileName }}</span>
+            <div class="file-meta">
+              <span>{{ doc.createdAt ? (doc.createdAt | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</span>
+            </div>
+          </div>
+          <button class="download-btn" (click)="downloadDocument(doc)" title="Tải xuống">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-docs" *ngIf="!t.charterDocuments || t.charterDocuments.length === 0">
+        Chưa có tài liệu đính kèm
+      </div>
+    </div>
+
+  </div>
+</div>

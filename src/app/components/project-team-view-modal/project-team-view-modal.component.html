@@ -260,34 +260,9 @@
 
     @if (activeTab() === 'details') {
     <div class="tab-content">
-      <div class="details-grid">
-        <div class="detail-item">
-          <label>Tên Team:</label>
-          <span>{{ teamData()?.name }}</span>
-        </div>
-        <div class="detail-item">
-          <label>Mô tả:</label>
-          <span>{{ teamData()?.description }}</span>
-        </div>
-        <div class="detail-item">
-          <label>Ngân sách:</label>
-          <span>{{ teamData()?.budgetToken }} Token</span>
-        </div>
-        <div class="detail-item">
-          <label>Thưởng:</label>
-          <span>{{ teamData()?.rewardToken }} Token</span>
-        </div>
-        <div class="detail-item">
-          <label>Thời gian:</label>
-          <span>{{ dateRange() }}</span>
-        </div>
-        <div class="detail-item">
-          <label>Trạng thái:</label>
-          <span class="status-badge" [class]="getStatusClass(teamData()?.status)">
-            {{ teamData()?.status }}
-          </span>
-        </div>
-      </div>
+      <app-project-team-detail
+        [teamId]="teamId() ?? ''"
+      />
     </div>
     }
   </div>

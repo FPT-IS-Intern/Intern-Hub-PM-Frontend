@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { TaskApiService, TaskResponse, TaskStatistics } from '../../services/task.service';
 import { TeamApiService } from '../../services/team.service';
 import { NotificationService } from '../../services/notification.service';
+import { ProjectTeamDetailComponent } from '../project-team-detail/project-team-detail.component';
 
 interface TaskTableItem {
   id: number;
@@ -21,7 +22,7 @@ interface TaskTableItem {
 @Component({
   selector: 'app-project-team-view-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProjectTeamDetailComponent],
   templateUrl: './project-team-view-modal.component.html',
   styleUrl: './project-team-view-modal.component.scss'
 })
