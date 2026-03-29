@@ -50,7 +50,13 @@ export class TaskDetailComponent implements OnInit {
   }
 
   protected goBack(): void {
-    this.router.navigate(['/']);
+    const basePath = window.location.pathname.startsWith('/pm') ? '/pm' : '';
+    const t = this.task();
+    if (t?.teamId) {
+      this.router.navigate([`${basePath}/project-team-view`, t.teamId]);
+    } else {
+      this.router.navigate([basePath || '/']);
+    }
   }
 
   // ── Submit form helpers ──────────────────────────────────────────────────────

@@ -12,6 +12,7 @@ export interface TaskDocument {
 
 export interface TaskResponse {
   id: number;
+  teamId?: number;
   projectId: number;
   taskUUID: string;
   name: string;

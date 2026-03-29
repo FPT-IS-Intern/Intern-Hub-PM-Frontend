@@ -236,7 +236,8 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
 
   // Task Actions
   protected viewTask(task: TaskTableItem): void {
-    this.router.navigate(['/task-view', task.id]);
+    const basePath = window.location.pathname.startsWith('/pm') ? '/pm' : '';
+    this.router.navigate([`${basePath}/task-view`, task.id]);
   }
 
   protected editTask(task: TaskTableItem): void {
@@ -249,7 +250,8 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
 
   protected submitTaskAction(task: TaskTableItem): void {
     // Chuyển đến trang chi tiết task để nộp bài
-    this.router.navigate(['/task-view', task.id]);
+    const basePath = window.location.pathname.startsWith('/pm') ? '/pm' : '';
+    this.router.navigate([`${basePath}/task-view`, task.id]);
   }
 
   protected approveTaskAction(task: TaskTableItem): void {
