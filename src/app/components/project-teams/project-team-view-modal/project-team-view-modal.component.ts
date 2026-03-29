@@ -7,6 +7,7 @@ import { TaskApiService, TaskResponse, TaskStatistics } from '../../../services/
 import { TeamApiService } from '../../../services/team.service';
 import { NotificationService } from '../../../services/notification.service';
 import { ProjectTeamDetailComponent } from '../project-team-detail/project-team-detail.component';
+import { CreateTaskComponent } from '../../teams/create-task/create-task.component';
 
 interface TaskTableItem {
   id: number;
@@ -22,7 +23,7 @@ interface TaskTableItem {
 @Component({
   selector: 'app-project-team-view-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProjectTeamDetailComponent],
+  imports: [CommonModule, FormsModule, ProjectTeamDetailComponent, CreateTaskComponent],
   templateUrl: './project-team-view-modal.component.html',
   styleUrl: './project-team-view-modal.component.scss'
 })
@@ -47,6 +48,7 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
   protected readonly taskStats = signal<TaskStatistics | null>(null);
   protected readonly teamMembers = signal<any[]>([]);
   protected readonly teamData = signal<any>(null);
+  protected readonly createTaskModalOpen = signal(false);
 
   // Filters & Pagination
   protected readonly searchTerm = signal('');
@@ -278,8 +280,16 @@ export class ProjectTeamViewModalComponent implements OnInit, OnDestroy {
   }
 
   protected openCreateModal(): void {
-    // Placeholder for Create Task Modal
-    this.notificationService.showWarning('Thông báo', 'Tính năng tạo task đang được phát triển.');
+    this.createTaskModalOpen.set(true);
+  }
+
+  protected closeCreateModal(): void {
+    this.createTaskModalOpen.set(false);
+  }
+
+  protected onTaskSubmitted(): void {
+    this.loadTasks();
+    this.loadTaskStats();
   }
 
   ngOnDestroy(): void {

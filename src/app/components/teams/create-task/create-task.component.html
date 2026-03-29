@@ -1,0 +1,151 @@
+@if (isOpen()) {
+<div class="modal-overlay" (click)="handleClose()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2>Tạo Task</h2>
+            <button type="button" class="close-btn" (click)="handleClose()" [disabled]="isSubmitting()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Tên Dự Án -->
+            <div class="form-group">
+                <label>Tên Task <span class="required">*</span></label>
+                <input type="text" placeholder="Tên task..." [class.error]="errors()['name']"
+                    [ngModel]="formData().name" (ngModelChange)="patchForm('name', $event)"
+                    [disabled]="isSubmitting()" />
+                @if (errors()['name']) { <p class="error-msg">{{ errors()['name'] }}</p> }
+            </div>
+
+            <!-- Mô Tả -->
+            <div class="form-group">
+                <label>Mô Tả</label>
+                <textarea placeholder="Nhập mô tả..." [class.error]="errors()['description']"
+                    [ngModel]="formData().description" (ngModelChange)="patchForm('description', $event)"
+                    [disabled]="isSubmitting()" maxlength="255"></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="flex: 1; text-align: left;">
+                        @if (errors()['description']) { <p class="error-msg" style="margin: 0;">{{
+                            errors()['description'] }}</p> }
+                    </div>
+                    <div class="char-count" style="margin-top: 0;">
+                        {{ formData().description.length }}/255
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thêm Leader -->
+            <div class="form-group">
+                <label>Chọn người nhận <span class="required">*</span></label>
+                <div class="search-container">
+                    <input type="text" class="search-input"
+                        placeholder="Tìm kiếm người nhận task theo tên hoặc email..."
+                        (input)="onLeaderSearchChange($event)" [disabled]="isSubmitting()" />
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <select [class.error]="errors()['assigneeId']" [ngModel]="formData().assigneeId"
+                    (ngModelChange)="patchForm('assigneeId', $event)"
+                    [disabled]="isSubmitting() || isLoadingLeaderUsers()">
+                    <option value="">{{ isLoadingLeaderUsers() ? 'Đang tải...' : 'Chọn người nhận' }}</option>
+                    @for (user of filteredLeaderUsers; track user.id) {
+                    <option [value]="user.id">{{ user.username }} - {{ user.email }}</option>
+                    }
+                </select>
+                @if (errors()['assigneeId']) { <p class="error-msg">{{ errors()['assigneeId'] }}</p> }
+            </div>
+
+            <!-- Điểm Thưởng -->
+            <div class="grid-row cols-1">
+                <div class="form-group">
+                    <label>Điểm Thưởng <span class="required">*</span></label>
+                    <input type="number" min="0" placeholder="100" [class.error]="errors()['rt']"
+                        [ngModel]="formData().rt" (ngModelChange)="patchForm('rt', $event ? Number($event) : null)"
+                        (keydown)="handleNumberKeydown($event)" [disabled]="isSubmitting()" />
+                    @if (errors()['rt']) { <p class="error-msg">{{ errors()['rt'] }}</p> }
+                </div>
+            </div>
+
+            <!-- Tài liệu đính kèm -->
+            <div class="upload-section">
+                <label class="font-semibold text-sm color-444">Tải tài liệu lên</label>
+                <div class="upload-area" (click)="fileInput.click()">
+                    <input #fileInput type="file" class="hidden" multiple (change)="onFileChange($event)">
+                    <div class="upload-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="upload-text">
+                        <span class="highlight">Tải lên</span>
+                    </div>
+                    <div class="upload-hint">Dung lượng tối đa 10MB (.docx, .pdf, .png, ...)</div>
+                </div>
+
+                @if (formData().files.length > 0) {
+                <div class="attachment-list">
+                    @for (f of formData().files; track f.name + f.size; let idx = $index) {
+                    <div class="attachment-item">
+                        <div class="file-info">
+                            <span class="pdf-icon">📄</span>
+                            <div>
+                                <div>{{ f.name }}</div>
+                                <div class="file-meta">{{ (f.size / 1024).toFixed(1) }} KB • Date time</div>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button type="button" (click)="removeFile(idx)" class="delete-file-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+
+            <!-- Ngày Bắt Đầu & Kết Thúc -->
+            <div class="grid-row cols-2">
+                <div class="form-group">
+                    <label>Ngày Bắt Đầu <span class="required">*</span></label>
+                    <input type="date" [class.error]="errors()['startDate']" [ngModel]="formData().startDate"
+                        (ngModelChange)="patchForm('startDate', $event)" [disabled]="isSubmitting()" />
+                    @if (errors()['startDate']) { <p class="error-msg">{{ errors()['startDate'] }}</p> }
+                </div>
+                <div class="form-group">
+                    <label>Ngày Kết Thúc <span class="required">*</span></label>
+                    <input type="date" [class.error]="errors()['endDate']" [ngModel]="formData().endDate"
+                        (ngModelChange)="patchForm('endDate', $event)" [disabled]="isSubmitting()" />
+                    @if (errors()['endDate']) { <p class="error-msg">{{ errors()['endDate'] }}</p> }
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" (click)="handleClose()"
+                [disabled]="isSubmitting()">Hủy</button>
+            <button type="button" class="btn btn-create" (click)="handleSubmit()" [disabled]="isSubmitting()">
+                {{ isSubmitting() ? 'Đang tạo...' : 'Tạo Dự Án Team' }}
+            </button>
+        </div>
+    </div>
+</div>
+}

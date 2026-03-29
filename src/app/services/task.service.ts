@@ -76,4 +76,29 @@ export class TaskApiService {
   getTeamMembers(teamId: number): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/pm/teams/${teamId}/members`);
   }
+
+  createTask(teamId: string, body: {
+    name: string;
+    description?: string;
+    assigneeId: string;
+    rewardToken: number;
+    startDate: string;
+    endDate: string;
+  }, files?: File[]): Observable<any> {
+    const formData = new FormData();
+
+    // Gửi request dưới dạng JSON Blob để Spring @RequestPart("request") deserialize được
+    const requestBlob = new Blob([JSON.stringify({
+      name: body.name,
+      description: body.description ?? null,
+      assigneeId: Number(body.assigneeId),
+      rewardToken: body.rewardToken,
+      startDate: body.startDate,
+      endDate: body.endDate,
+    })], { type: 'application/json' });
+    formData.append('request', requestBlob);
+
+    files?.forEach(f => formData.append('files', f, f.name));
+    return this.http.post<any>(`${this.apiUrl}/teams/${teamId}/tasks`, formData);
+  }
 }

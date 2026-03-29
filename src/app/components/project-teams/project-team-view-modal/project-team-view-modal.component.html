@@ -267,3 +267,11 @@
     }
   </div>
 </div>
+
+<!-- Create Task Modal -->
+<app-create-task
+  [isOpen]="createTaskModalOpen()"
+  [teamId]="teamId() ?? ''"
+  (closed)="closeCreateModal()"
+  (submitted)="onTaskSubmitted()"
+/>
